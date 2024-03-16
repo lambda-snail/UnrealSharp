@@ -1,0 +1,11 @@
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\bin\Debug\net6.0\UnrealSharpCore.deps.json
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\bin\Debug\net6.0\UnrealSharpCore.dll
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\bin\Debug\net6.0\UnrealSharpCore.pdb
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\obj\Debug\net6.0\UnrealSharpCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\obj\Debug\net6.0\UnrealSharpCore.AssemblyInfoInputs.cache
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\obj\Debug\net6.0\UnrealSharpCore.AssemblyInfo.cs
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\obj\Debug\net6.0\UnrealSharpCore.csproj.CoreCompileInputs.cache
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\obj\Debug\net6.0\UnrealSharpCore.dll
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\obj\Debug\net6.0\refint\UnrealSharpCore.dll
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\obj\Debug\net6.0\UnrealSharpCore.pdb
+C:\Projects\Unreal\DotnetIntegration\Plugins\UnNetHost\Source\UnrealSharpCore\UnrealSharpCore\obj\Debug\net6.0\ref\UnrealSharpCore.dll

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>LambdaSnail.UnrealSharp</RootNamespace>
+        <LangVersion>12</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <Target Name="CopyFiles" AfterTargets="Build">
+        <ItemGroup>
+            <SourceFiles Include="$(OutDir)/$(ProjectName).dll;" />
+        </ItemGroup>
+        <Copy
+            SourceFiles="@(SourceFiles)"
+            DestinationFolder="$(ProjectDir)../../../Resources"
+        />
+        <Message Importance="normal" Text="Outputs copied to Resources" />
+    </Target>
+</Project>

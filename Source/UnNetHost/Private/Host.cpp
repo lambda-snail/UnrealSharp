@@ -243,53 +243,22 @@ namespace
         // STEP 4: Run managed code
         //
 
-        string_t const dotnetlib_path = root_path + STR("DotNetLib.dll");
+        string_t const dotnetlib_path = root_path + STR("UnrealSharpCore.dll");
         //char_t const *dotnet_type = STR("DotNetLib.Lib, DotNetLib");
-        char_t const *dotnet_type = STR("LambdaSnail.UnrealSharp.ActorManager, DotNetLib");
+        char_t const *dotnet_type = STR("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore");
         char_t const *dotnet_type_method = STR("InitActorManager");
         // Function pointer to managed delegate
-        component_entry_point_fn hello = nullptr;
+        component_entry_point_fn entry_point = nullptr;
         int32_t rc = load_assembly_and_get_function_pointer(
             dotnetlib_path.c_str(),
             dotnet_type,
             dotnet_type_method,
             nullptr /*delegate_type_name*/,
             nullptr,
-            (void**)&hello);
+            (void**)&entry_point);
         assert(rc == 0 && hello != nullptr && "Failure: load_assembly_and_get_function_pointer()");
 
-        hello(nullptr, 0);
-        
-        //
-        // STEP 4: Run managed code
-        //
-        struct lib_args
-        {
-            char_t const* message;
-            int32_t number;
-        };
-        
-        // for (int32_t i = 0; i < 3; ++i)
-        // {
-        //     lib_args args
-        //     {
-        //         STR("from host!"),
-        //         i
-        //     };
-        //
-        //     hello(&args, sizeof(args));
-        // }
-        
-
-        
-        //entry_point();
-
-        dotnet_type = STR("DotNetLib.Lib, DotNetLib");
-        
-        // Demonstrates how to consume c++ code from dotnet by passing a ptr to a function
-        pass_fnptr_to_dotnet(load_assembly_and_get_function_pointer, dotnetlib_path, dotnet_type, rc);
-        pass_fnptr_to_dotnet_witharguments(load_assembly_and_get_function_pointer, dotnetlib_path, dotnet_type, rc);
-        pass_fnptr_with_strings(load_assembly_and_get_function_pointer, dotnetlib_path, dotnet_type, rc);
+        entry_point(nullptr, 0);
         
         return EXIT_SUCCESS;
     }
