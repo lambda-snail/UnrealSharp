@@ -12,6 +12,7 @@
 #include "Dotnet/coreclr_delegates.h"
 #include "Dotnet/hostfxr.h"
 #include "Dotnet/nethost.h"
+#include "Logging/StructuredLog.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -239,12 +240,11 @@ namespace
         //     (void**)&entry_point);
         // assert(rc == 0 && hello != nullptr && "Failure: load_assembly_and_get_function_pointer()");
 
-        //
-        // STEP 4: Run managed code
-        //
+        // ###############################
+        // Initialize code 
+        // ###############################
 
         string_t const dotnetlib_path = root_path + STR("UnrealSharpCore.dll");
-        //char_t const *dotnet_type = STR("DotNetLib.Lib, DotNetLib");
         char_t const *dotnet_type = STR("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore");
         char_t const *dotnet_type_method = STR("InitActorManager");
         // Function pointer to managed delegate
@@ -253,17 +253,40 @@ namespace
             dotnetlib_path.c_str(),
             dotnet_type,
             dotnet_type_method,
-            nullptr /*delegate_type_name*/,
+            nullptr,
             nullptr,
             (void**)&entry_point);
         assert(rc == 0 && hello != nullptr && "Failure: load_assembly_and_get_function_pointer()");
 
         entry_point(nullptr, 0);
+
+        // ###############################
+        // Register Test Actor
+        // ###############################
+
+        typedef int (CORECLR_DELEGATE_CALLTYPE *register_managed_actor_fn)(unnet_char_t const* assembly, unnet_char_t const* type);
+        register_managed_actor_fn register_managed_actor { nullptr };
+        rc = load_assembly_and_get_function_pointer(
+            dotnetlib_path.c_str(),
+            STR("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore"),
+            STR("RegisterActor"),
+            UNMANAGEDCALLERSONLY_METHOD,
+            nullptr,
+            (void**)&register_managed_actor);
+        assert(rc == 0 && register_managed_actor != nullptr && "Failure: load_assembly_and_get_function_pointer()");
+        
+        int handle = register_managed_actor(STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.SomeActor"));
+        UE_LOGFMT(LogTemp, Warning, "Created managed actor with handle: {Handle}", handle);
+
+        handle = register_managed_actor(STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.SomeActor"));
+        UE_LOGFMT(LogTemp, Warning, "Created managed actor with handle: {Handle}", handle);
+
+        handle = register_managed_actor(STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.SomeActor"));
+        UE_LOGFMT(LogTemp, Warning, "Created managed actor with handle: {Handle}", handle);
         
         return EXIT_SUCCESS;
     }
 }
-
 
 /********************************************************************************************
  * Function used to load and activate .NET Core

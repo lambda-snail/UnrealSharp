@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UnrealSharpCore")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+094d5009a8e2c01b2168733cd7209dc5b431b18f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c44432dedad29ff3872f8148bec4a4154e326747")]
 [assembly: System.Reflection.AssemblyProductAttribute("UnrealSharpCore")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UnrealSharpCore")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
