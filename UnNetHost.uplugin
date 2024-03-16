@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "UnNetHost",
+	"Description": "A basic dotnet host for Unreal Engine",
+	"Category": "Other",
+	"CreatedBy": "Niclas Blomberg",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "UnNetHost",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
