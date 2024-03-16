@@ -1,6 +1,6 @@
 ﻿namespace LambdaSnail.UnrealSharp;
 
-using unsafe get_transformdelegate = delegate*<Transform> ;
+using unsafe get_transformdelegate = delegate*<Transform>;
 using ActorHandle = int;
 
 public struct Vector
@@ -19,7 +19,7 @@ public abstract class Actor
 {
     private unsafe get_transformdelegate get_transform;
     
-    public unsafe void InitDelegates(get_transformdelegate get_transform_in)
+    public unsafe void BindDelegates(get_transformdelegate get_transform_in)
     {
         this.get_transform = get_transform_in;
     }
@@ -30,7 +30,7 @@ public abstract class Actor
     
     public abstract void Tick(float deltaTime);
 
-    public unsafe Transform GetTransform()
+    protected unsafe Transform GetTransform()
     {
         return get_transform();
     }

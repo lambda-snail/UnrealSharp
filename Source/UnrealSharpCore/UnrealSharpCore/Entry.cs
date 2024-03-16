@@ -7,31 +7,19 @@ using System.Text.Unicode;
 
 namespace LambdaSnail.UnrealSharp;
 
+using unsafe get_transformdelegate = delegate*<Transform>;
 using ActorHandle = int;
-
-public class ActorComparer : IEqualityComparer<Actor>
-{
-    public bool Equals(Actor x, Actor y)
-    {
-        return x.ActorHandle == y.ActorHandle;
-    }
-
-    public int GetHashCode(Actor obj)
-    {
-        return obj.ActorHandle;
-    }
-}
 
 public static class ActorManager
 {
-    private static HashSet<Actor> Actors { get; set; } = default!;
+    private static Dictionary<ActorHandle, Actor> Actors { get; set; } = default!;
     private static ActorHandle NextActorHandle = 0;
     
     //[UnmanagedCallersOnly]
     public static int InitActorManager(IntPtr arg, int argLength)
     {
         Console.WriteLine($"Init has been called!");
-        Actors = new(new ActorComparer());
+        Actors = new();
 
         return 0;
     }
@@ -39,10 +27,22 @@ public static class ActorManager
     [UnmanagedCallersOnly]
     public static void TickActors(float deltaTime)
     {
-        foreach (Actor a in Actors)
+        foreach (Actor a in Actors.Values)
         {
             a.Tick(deltaTime);
         }
+    }
+    
+    [UnmanagedCallersOnly]
+    public static void TickActor(ActorHandle handle, float deltaTime)
+    {
+        Actors[handle].Tick(deltaTime);
+    }
+
+    [UnmanagedCallersOnly]
+    public static unsafe void BindDelegates(ActorHandle handle, get_transformdelegate get_transform)
+    {
+        Actors[handle].BindDelegates(get_transform);
     }
     
     [UnmanagedCallersOnly]
@@ -66,7 +66,7 @@ public static class ActorManager
         
         Actor actor = (Actor)obj;
         actor.ActorHandle = NextActorHandle++;
-        Actors.Add(actor);
+        Actors.Add(actor.ActorHandle, actor);
         
         return actor.ActorHandle;
     }
