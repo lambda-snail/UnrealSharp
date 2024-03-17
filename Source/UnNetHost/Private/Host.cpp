@@ -264,6 +264,26 @@ namespace
 		entry_point(nullptr, 0);
 
 		// ###############################
+		// Register UE LOG
+		// ###############################
+
+		typedef int (CORECLR_DELEGATE_CALLTYPE *register_unreal_logger_fn)( void(*ue_log)(unnet_char_t const*) );
+		register_unreal_logger_fn register_unreal_logger { nullptr };
+		rc = load_assembly_and_get_function_pointer(
+					dotnetlib_path.c_str(),
+					STR("LambdaSnail.UnrealSharp.UELog, UnrealSharpCore"),
+					STR("BindLogger"),
+					UNMANAGEDCALLERSONLY_METHOD,
+					nullptr,
+					reinterpret_cast<void**>(&register_unreal_logger));
+		assert(rc == 0 && register_unreal_logger != nullptr && "Failure: Unable to register log function with managed assembly");
+
+		register_unreal_logger([](unnet_char_t const* message)
+		{
+			UE_LOGFMT(LogTemp, Warning, "{Message}", message);
+		});
+		
+		// ###############################
 		// Register Test Actor
 		// ###############################
 
@@ -288,10 +308,20 @@ namespace
 		int handle3 = register_managed_actor(STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.SomeActor"));
 		UE_LOGFMT(LogTemp, Warning, "Created managed actor with handle: {Handle}", handle3);
 
+		struct Vector
+		{
+			double X;
+			double Y;
+			double Z;
+		};
+		
 		// Binding Delegates
 		struct SimpleTransform
 		{
 			FVector3f Location;
+			// double X;
+			// double Y;
+			// double Z;
 		};
 
 		typedef int (CORECLR_DELEGATE_CALLTYPE *bind_delegates_fn)(int, SimpleTransform (*get_transform)());
@@ -309,6 +339,7 @@ namespace
 		{
 			UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", 1);
 			SimpleTransform const Transform{FVector3f(0.f, 0.f, 0.f)};
+			//SimpleTransform const Transform{0.4, 0.1, 0};
 			return Transform;
 		});
 
@@ -316,6 +347,7 @@ namespace
 		{
 			UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", 2);
 			SimpleTransform const Transform{FVector3f(1.f, .4f, -1.f)};
+			//SimpleTransform const Transform{5, 2, -1.976};
 			return Transform;
 		});
 
@@ -323,6 +355,7 @@ namespace
 		{
 			UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", 3);
 			SimpleTransform const Transform{FVector3f(-5.f, 2.f, 1.f)};
+			//SimpleTransform const Transform{43, 99, -1};
 			return Transform;
 		});
 
