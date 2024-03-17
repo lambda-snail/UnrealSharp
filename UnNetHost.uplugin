@@ -1,9 +1,9 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0",
+	"VersionName": "0.1.0",
 	"FriendlyName": "UnNetHost",
-	"Description": "A basic dotnet host for Unreal Engine",
+	"Description": "An opinionated dotnet core integration for Unreal Engine",
 	"Category": "Other",
 	"CreatedBy": "Niclas Blomberg",
 	"CreatedByURL": "",
@@ -12,7 +12,7 @@
 	"SupportURL": "",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
-	"IsExperimentalVersion": false,
+	"IsExperimentalVersion": true,
 	"Installed": false,
 	"Modules": [
 		{
