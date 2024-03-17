@@ -1,8 +1,8 @@
 # TLDR
 
-UnrealSharp attempts to a `dotnet core` integration to some parts of Unreal Engine. It does this by creating what the `dotnet` documentation calls a "native host" in the context of a subsystem, and exposes functionality by providing function pointers to `dotnet`.
+UnrealSharp attempts to a `dotnet core` integration to some parts of Unreal Engine. It does this by creating what the `dotnet` documentation calls a "native host" in the context of a subsystem, and exposes functionality by providing function pointers to `dotnet`. You can read more about this in my other repository [dotnet-host-example](https://github.com/lambda-snail/dotnet-host-example) where I play around with an example from Microsoft, and document some cases that were not really covered in the official channels (as far as I could tell).
 
-It is currently in an early stage and is probably not very useful at the moment.
+The plugin is currently in an early stage and is probably not very useful at the moment.
 
 # Current Scope
 
@@ -39,6 +39,7 @@ More functionality will be coming when I have the time :)
 
 # Todo (actor integration)
 
+- [ ] Clean up the `Host` files and incorporate into the subsystem where approproate. "Unrealify" the coding style.
 - [ ] Set up communication between `dotnet` and `cpp` to allow developers to read and write common data (e.g., transform data etc).
 - [ ] Design a way to automate the boilerplate required to set up a read/write of some data.
     - Possible solution: Extend the UHT
@@ -49,3 +50,7 @@ More functionality will be coming when I have the time :)
 - [ ] Set up a way for developers to provide their own `dotnet` assembly with their own types and register that in the system.
 - [ ] `Nice to have` Design a clean way for developers to extend the integration, by adding their own read and write callbacks for custom data.
 - [ ] Some example classes and documentation
+
+# License and Attribution
+
+This project is licensed under the MIT license. It contains modified code from the official dotnet samples repository found here: https://github.com/dotnet/samples/tree/main/core/hosting
