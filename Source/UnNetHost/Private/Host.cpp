@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cassert>
+#include <functional>
 #include <iostream>
 
 #include "Dotnet/coreclr_delegates.h"
@@ -17,26 +18,15 @@
 #ifdef _WIN32
 #include <Windows.h>
 
-#define STR(s) L ## s
-#define CH(c) L ## c
-#define DIR_SEPARATOR L'\\'
-
 #else
 #include <dlfcn.h>
 #include <limits.h>
-
-#define STR(s) s
-#define CH(c) c
-#define DIR_SEPARATOR '/'
-#define MAX_PATH PATH_MAX
 
 #define string_compare strcmp
 
 #endif
 
-using string_t = std::basic_string<char_t>;
-
-namespace
+namespace LambdaSnail::UnrealSharp
 {
 	// Globals to hold hostfxr exports
 	hostfxr_initialize_for_dotnet_command_line_fn init_for_cmd_line_fptr;
@@ -49,58 +39,27 @@ namespace
 	bool load_hostfxr(char_t const* assembly_path);
 	load_assembly_and_get_function_pointer_fn get_dotnet_load_assembly(char_t const* config_path);
 
-	int32_t run_component_example(string_t const& root_path);
-}
+	ManagedActorFunctions UnNet_Execute(unnet_char_t const* argv)
+	{
+		// Get the current executable's directory
+		// This sample assumes the managed assembly to load and its runtime configuration file are next to the host
+		// 	char_t host_path[MAX_PATH];
+		// #if _WIN32
+		// 	auto size = ::GetFullPathNameW(argv[0], sizeof(host_path) / sizeof(char_t), host_path, nullptr);
+		// 	assert(size != 0);
+		// #else
+		//     auto resolved = realpath(argv[0], host_path);
+		//     assert(resolved != nullptr);
+		// #endif
+		//
+		// 	string_t root_path = host_path;
+		// 	auto pos = root_path.find_last_of(DIR_SEPARATOR);
+		// 	assert(pos != string_t::npos);
+		// 	root_path = root_path.substr(0, pos + 1);
 
-#if defined(_WIN32)
-int32_t __cdecl wmain(int32_t argc, wchar_t* argv[])
-#else
-int32_t main(int32_t argc, char *argv[])
-#endif
-{
-	// Get the current executable's directory
-	// This sample assumes the managed assembly to load and its runtime configuration file are next to the host
-	char_t host_path[MAX_PATH];
-#if _WIN32
-	auto const size = ::GetFullPathNameW(argv[0], sizeof(host_path) / sizeof(char_t), host_path, nullptr);
-	assert(size != 0);
-#else
-    auto resolved = realpath(argv[0], host_path);
-    assert(resolved != nullptr);
-#endif
+		return LambdaSnail::UnrealSharp::run_component_example(argv);
+	}
 
-	string_t root_path = host_path;
-	auto const pos = root_path.find_last_of(DIR_SEPARATOR);
-	assert(pos != string_t::npos);
-	root_path = root_path.substr(0, pos + 1);
-
-
-	return run_component_example(root_path);
-}
-
-int UnNet_Execute(int argc, unnet_char_t const* argv[])
-{
-	// Get the current executable's directory
-	// This sample assumes the managed assembly to load and its runtime configuration file are next to the host
-	char_t host_path[MAX_PATH];
-#if _WIN32
-	auto size = ::GetFullPathNameW(argv[0], sizeof(host_path) / sizeof(char_t), host_path, nullptr);
-	assert(size != 0);
-#else
-    auto resolved = realpath(argv[0], host_path);
-    assert(resolved != nullptr);
-#endif
-
-	string_t root_path = host_path;
-	auto pos = root_path.find_last_of(DIR_SEPARATOR);
-	assert(pos != string_t::npos);
-	root_path = root_path.substr(0, pos + 1);
-
-	return run_component_example(root_path);
-}
-
-namespace
-{
 	void test_fn()
 	{
 		std::cout << "[C++] In c++ again!" << std::endl;
@@ -202,7 +161,7 @@ namespace
 		});
 	}
 
-	int32_t run_component_example(string_t const& root_path)
+	ManagedActorFunctions run_component_example(string_t const& root_path)
 	{
 		//
 		// STEP 1: Load HostFxr and get exported hosting functions
@@ -210,7 +169,7 @@ namespace
 		if (!load_hostfxr(nullptr))
 		{
 			assert(false && "Failure: load_hostfxr()");
-			return EXIT_FAILURE;
+			return {}; // TODO: Error handling
 		}
 
 		//
@@ -267,28 +226,28 @@ namespace
 		// Register UE LOG
 		// ###############################
 
-		typedef int (CORECLR_DELEGATE_CALLTYPE *register_unreal_logger_fn)( void(*ue_log)(unnet_char_t const*) );
-		register_unreal_logger_fn register_unreal_logger { nullptr };
+		typedef int (CORECLR_DELEGATE_CALLTYPE *register_unreal_logger_fn)(void (*ue_log)(unnet_char_t const*));
+		register_unreal_logger_fn register_unreal_logger{nullptr};
 		rc = load_assembly_and_get_function_pointer(
-					dotnetlib_path.c_str(),
-					STR("LambdaSnail.UnrealSharp.UELog, UnrealSharpCore"),
-					STR("BindLogger"),
-					UNMANAGEDCALLERSONLY_METHOD,
-					nullptr,
-					reinterpret_cast<void**>(&register_unreal_logger));
-		assert(rc == 0 && register_unreal_logger != nullptr && "Failure: Unable to register log function with managed assembly");
+			dotnetlib_path.c_str(),
+			STR("LambdaSnail.UnrealSharp.UELog, UnrealSharpCore"),
+			STR("BindLogger"),
+			UNMANAGEDCALLERSONLY_METHOD,
+			nullptr,
+			reinterpret_cast<void**>(&register_unreal_logger));
+		assert(
+			rc == 0 && register_unreal_logger != nullptr &&
+			"Failure: Unable to register log function with managed assembly");
 
 		register_unreal_logger([](unnet_char_t const* message)
 		{
 			UE_LOGFMT(LogTemp, Warning, "{Message}", message);
 		});
-		
+
 		// ###############################
 		// Register Test Actor
 		// ###############################
-
-		typedef int (CORECLR_DELEGATE_CALLTYPE *register_managed_actor_fn)(
-			unnet_char_t const* assembly, unnet_char_t const* type);
+		
 		register_managed_actor_fn register_managed_actor{nullptr};
 		rc = load_assembly_and_get_function_pointer(
 			dotnetlib_path.c_str(),
@@ -299,32 +258,11 @@ namespace
 			reinterpret_cast<void**>(&register_managed_actor));
 		assert(rc == 0 && register_managed_actor != nullptr && "Failure: load_assembly_and_get_function_pointer()");
 
-		int handle1 = register_managed_actor(STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.SomeActor"));
+		int handle1 = register_managed_actor(STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.TestActor"));
 		UE_LOGFMT(LogTemp, Warning, "Created managed actor with handle: {Handle}", handle1);
-
-		int handle2 = register_managed_actor(STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.SomeActor"));
-		UE_LOGFMT(LogTemp, Warning, "Created managed actor with handle: {Handle}", handle2);
-
-		int handle3 = register_managed_actor(STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.SomeActor"));
-		UE_LOGFMT(LogTemp, Warning, "Created managed actor with handle: {Handle}", handle3);
-
-		struct Vector
-		{
-			double X;
-			double Y;
-			double Z;
-		};
 		
 		// Binding Delegates
-		struct SimpleTransform
-		{
-			FVector3f Location;
-			// double X;
-			// double Y;
-			// double Z;
-		};
-
-		typedef int (CORECLR_DELEGATE_CALLTYPE *bind_delegates_fn)(int, SimpleTransform (*get_transform)());
+		
 		bind_delegates_fn bind_delegates{nullptr};
 		rc = load_assembly_and_get_function_pointer(
 			dotnetlib_path.c_str(),
@@ -338,30 +276,18 @@ namespace
 		bind_delegates(handle1, []()
 		{
 			UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", 1);
-			SimpleTransform const Transform{FVector3f(0.f, 0.f, 0.f)};
-			//SimpleTransform const Transform{0.4, 0.1, 0};
-			return Transform;
-		});
-
-		bind_delegates(handle2, []()
-		{
-			UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", 2);
-			SimpleTransform const Transform{FVector3f(1.f, .4f, -1.f)};
+			SimpleTransform const Transform{FVector(1, .4, -1)};
 			//SimpleTransform const Transform{5, 2, -1.976};
 			return Transform;
-		});
-
-		bind_delegates(handle3, []()
+		},
+		[](SimpleTransform Transform)
 		{
-			UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", 3);
-			SimpleTransform const Transform{FVector3f(-5.f, 2.f, 1.f)};
-			//SimpleTransform const Transform{43, 99, -1};
-			return Transform;
-		});
+			UE_LOGFMT(LogTemp, Warning, "SetTransform({Input}) for handle {Handle}", Transform.Location.ToCompactString(), 1);
+		}
+		);
 
 		// Call Tick
-		typedef int (CORECLR_DELEGATE_CALLTYPE *tick_actors_fn)(float);
-		tick_actors_fn tick_actors { nullptr };
+		tick_actors_fn tick_actors{nullptr};
 		rc = load_assembly_and_get_function_pointer(
 			dotnetlib_path.c_str(),
 			STR("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore"),
@@ -369,21 +295,35 @@ namespace
 			UNMANAGEDCALLERSONLY_METHOD,
 			nullptr,
 			reinterpret_cast<void**>(&tick_actors));
-		assert(rc == 0 && tick_actors != nullptr && "Failure: Could not load 'BindDelegates'");
+		assert(rc == 0 && tick_actors != nullptr && "Failure: Could not load 'TickActors'");
 
-		tick_actors(0.1);
+		tick_single_actor_fn tick_single_actor { nullptr };
+		rc = load_assembly_and_get_function_pointer(
+			dotnetlib_path.c_str(),
+			STR("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore"),
+			STR("TickSingleActor"),
+			UNMANAGEDCALLERSONLY_METHOD,
+			nullptr,
+			reinterpret_cast<void**>(&tick_single_actor));
+		assert(rc == 0 && tick_single_actor != nullptr && "Failure: Could not load 'TickSingleActor'");
 		
+		tick_actors(0.1);
 
-		return EXIT_SUCCESS;
+		ManagedActorFunctions ActorFunctions
+		{
+			.register_managed_actor = register_managed_actor,
+			.bind_delegates = bind_delegates,
+			.tick_actors = tick_actors,
+			.tick_single_actor = tick_single_actor
+		};
+
+		return ActorFunctions;
 	}
-}
 
-/********************************************************************************************
- * Function used to load and activate .NET Core
- ********************************************************************************************/
+	/********************************************************************************************
+	 * Function used to load and activate .NET Core
+	 ********************************************************************************************/
 
-namespace
-{
 	// Forward declarations
 	void* load_library(char_t const*);
 

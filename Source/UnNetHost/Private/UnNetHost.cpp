@@ -9,8 +9,8 @@
 void FUnNetHostModule::StartupModule()
 {
 	//const wchar_t* path = L"C:\\Projects\\Unreal\\DotnetIntegration\\Binaries\\Win64\\dummy.exe";
-	const wchar_t* path = L"C:\\Projects\\Unreal\\DotnetIntegration\\Plugins\\UnNetHost\\Resources\\dummy.exe";
-	UnNet_Execute(1, &path);
+	// const wchar_t* path = L"C:\\Projects\\Unreal\\DotnetIntegration\\Plugins\\UnNetHost\\Resources\\dummy.exe";
+	// UnNet_Execute(1, &path);
 }
 
 void FUnNetHostModule::ShutdownModule()

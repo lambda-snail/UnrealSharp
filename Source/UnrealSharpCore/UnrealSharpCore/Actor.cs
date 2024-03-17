@@ -3,14 +3,15 @@
 namespace LambdaSnail.UnrealSharp;
 
 using unsafe get_transformdelegate = delegate*<Transform>;
+using unsafe set_transformdelegate = delegate*<Transform, void>;
 using ActorHandle = int;
 
 [StructLayout(LayoutKind.Sequential)]
 public struct Vector
 {
-    public float X;
-    public float Y;
-    public float Z;
+    public double X;
+    public double Y;
+    public double Z;
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -22,10 +23,12 @@ public struct Transform
 public abstract class Actor
 {
     private unsafe get_transformdelegate get_transform;
+    private unsafe set_transformdelegate set_transform;
     
-    public unsafe void BindDelegates(get_transformdelegate get_transform_in)
+    public unsafe void BindDelegates(get_transformdelegate get_transform_in, set_transformdelegate set_transform_in)
     {
         this.get_transform = get_transform_in;
+        this.set_transform = set_transform_in;
     }
 
     public Actor() {}
@@ -36,16 +39,11 @@ public abstract class Actor
 
     protected unsafe Transform GetTransform()
     {
-        //return Marshal.PtrToStructure<Transform>(get_transform());
         return get_transform();
     }
-}
-
-public class SomeActor : Actor
-{
-    public override void Tick(float deltaTime)
+    
+    protected unsafe void SetTransform(Transform transform)
     {
-        Transform t = GetTransform();
-        UELog.Log($"Actor with handle {ActorHandle}: Transform=({t.Location.X},{t.Location.Y},{t.Location.Z})");
+        set_transform(transform);
     }
 }
