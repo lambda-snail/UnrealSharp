@@ -8,7 +8,7 @@ The plugin is currently in an early stage and is probably not very useful at the
 
 The scope for version 1.0 is actor (and maybe character) integration and reducing boilerplate. In the future other classes may be supported as well.
 
-My dream is to have a plugin where the user (developer) can work with his/her own `dotnet` code, using any `nuget` package they want etc., and using this with without touching any of the internals of the plugin.
+My dream is to have a plugin where the user (developer) can work with his/her own `dotnet` code, using any `nuget` package they want etc., and using this without touching any of the internals of the plugin (this is currently impossible).
 
 # Current State
 
