@@ -42,6 +42,7 @@ More functionality will be coming when I have the time :)
 # Todo (actor integration)
 
 - [ ] Clean up the `Host` files and incorporate into the subsystem where approproate. "Unrealify" the coding style.
+- [ ] See if we can build the `UnrealSharpCore` assembly automatically as part of Unreal's normal buid process.
 - [ ] Set up communication between `dotnet` and `cpp` to allow developers to read and write common data (e.g., transform data etc).
 - [ ] Design a way to automate the boilerplate required to set up a read/write of some data.
     - Possible solution: Extend the UHT
