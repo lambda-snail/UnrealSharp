@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class UNNETHOST_API UUnrealSharpSubsystem : public UGameInstanceSubsystem
+class UNREALSHARP_API UUnrealSharpSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 

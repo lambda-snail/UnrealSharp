@@ -14,9 +14,10 @@ Saved
 *.xcworkspace
 
 Plugins/Developer/RiderLink
-Content
 
 .idea
+
+Source/UnrealSharpCore/UnrealSharpCore/obj
 
 Source/UnrealSharpCore/UnrealSharpCore/obj/**.*
 Source/UnrealSharpCore/UnrealSharpCore/bin/**.*

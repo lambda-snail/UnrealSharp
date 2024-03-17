@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "0.1.0",
-	"FriendlyName": "UnNetHost",
+	"FriendlyName": "UnrealSharp",
 	"Description": "An opinionated dotnet core integration for Unreal Engine",
 	"Category": "Other",
 	"CreatedBy": "Niclas Blomberg",
@@ -16,7 +16,7 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "UnNetHost",
+			"Name": "UnrealSharp",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}

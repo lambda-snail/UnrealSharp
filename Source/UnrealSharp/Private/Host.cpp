@@ -218,7 +218,7 @@ namespace LambdaSnail::UnrealSharp
 			nullptr,
 			nullptr,
 			reinterpret_cast<void**>(&entry_point));
-		assert(rc == 0 && hello != nullptr && "Failure: load_assembly_and_get_function_pointer()");
+		assert(rc == 0 && entry_point != nullptr && "Failure: load_assembly_and_get_function_pointer()");
 
 		entry_point(nullptr, 0);
 
