@@ -54,8 +54,7 @@ namespace LambdaSnail::UnrealSharp
 
 	typedef uint32 ActorHandle;
 
-	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *register_managed_actor_fn)(unnet_char_t const* assembly,
-	                                                                   unnet_char_t const* type);
+	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *register_managed_actor_fn)(TCHAR const* assembly, TCHAR const* type);
 	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *bind_delegates_fn)(ActorHandle, SimpleTransform (*get_transform)(ActorHandle),
 	                                                           void (*set_transform)(ActorHandle, SimpleTransform));
 	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *tick_actors_fn)(float);

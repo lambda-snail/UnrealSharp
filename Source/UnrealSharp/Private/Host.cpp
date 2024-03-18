@@ -56,7 +56,7 @@ namespace LambdaSnail::UnrealSharp
 		assert(load_assembly_and_get_function_pointer != nullptr && "Failure: get_dotnet_load_assembly()");
 
 		// ###############################
-		// Initialize code 
+		// Initialize Actor Manager 
 		// ###############################
 
 		FString const DotnetlibPath = root_path + STR("UnrealSharpCore.dll");
@@ -78,23 +78,26 @@ namespace LambdaSnail::UnrealSharp
 		// ###############################
 		// Register UE LOG
 		// ###############################
+		auto GetFunctionPointerUnmanagedCallersOnly = [&](FString const& MethodName, auto** OutFunction, FString const& AssemblyQualifiedType = FString("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore"))-> int32
+		{
+			return load_assembly_and_get_function_pointer(
+				*DotnetlibPath,
+				*FString(AssemblyQualifiedType),
+				*MethodName,
+				UNMANAGEDCALLERSONLY_METHOD,
+				nullptr,
+				reinterpret_cast<void**>(OutFunction));
+		};
+		
 
 		typedef int (CORECLR_DELEGATE_CALLTYPE *register_unreal_logger_fn)(void (*ue_log)(TCHAR const*));
-		register_unreal_logger_fn register_unreal_logger{nullptr};
-		rc = load_assembly_and_get_function_pointer(
-			*DotnetlibPath,
-			*FString("LambdaSnail.UnrealSharp.UELog, UnrealSharpCore"),
-			*FString("BindLogger"),
-			UNMANAGEDCALLERSONLY_METHOD,
-			nullptr,
-			reinterpret_cast<void**>(&register_unreal_logger));
-		assert(
-			rc == 0 && register_unreal_logger != nullptr &&
-			"Failure: Unable to register log function with managed assembly");
+		register_unreal_logger_fn RegisterUnrealManagedLogger { nullptr };
+		rc = GetFunctionPointerUnmanagedCallersOnly(FString("BindLogger"), &RegisterUnrealManagedLogger, FString("LambdaSnail.UnrealSharp.UELog, UnrealSharpCore"));
+		checkf(rc == 0 && RegisterUnrealManagedLogger != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("register_unreal_logger"));
 
-		register_unreal_logger([](TCHAR const* message)
+		RegisterUnrealManagedLogger([](TCHAR const* Message)
 		{
-			UE_LOGFMT(LogTemp, Warning, "{Message}", message);
+			UE_LOGFMT(LogTemp, Warning, "{Message}", Message);
 		});
 
 		// ###############################
@@ -102,29 +105,18 @@ namespace LambdaSnail::UnrealSharp
 		// ###############################
 
 		ManagedActorFunctions ActorFunctions {};
-
-		auto GetFunctionPointerUnmanagedCallersOnly = [&](FString const& MethodName, auto** OutFunction)-> int
-		{
-			return load_assembly_and_get_function_pointer(
-				*DotnetlibPath,
-				*FString("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore"),
-				*MethodName,
-				UNMANAGEDCALLERSONLY_METHOD,
-				nullptr,
-				reinterpret_cast<void**>(OutFunction));
-		};
 		
-		GetFunctionPointerUnmanagedCallersOnly(FString("RegisterActor"), &ActorFunctions.RegisterManagedActor);
+		rc = GetFunctionPointerUnmanagedCallersOnly(FString("RegisterActor"), &ActorFunctions.RegisterManagedActor);
 		checkf(rc == 0 && ActorFunctions.RegisterManagedActor != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("RegisterManagedActor"));
 		
-		GetFunctionPointerUnmanagedCallersOnly(FString("BindDelegates"), &ActorFunctions.BindDelegates);
+		rc = GetFunctionPointerUnmanagedCallersOnly(FString("BindDelegates"), &ActorFunctions.BindDelegates);
 		checkf(rc == 0 && ActorFunctions.BindDelegates != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("BindDelegates"));
 
 		// Tick Functions
-		GetFunctionPointerUnmanagedCallersOnly(FString("TickActors"), &ActorFunctions.TickActors);
+		rc = GetFunctionPointerUnmanagedCallersOnly(FString("TickActors"), &ActorFunctions.TickActors);
 		checkf(rc == 0 && ActorFunctions.TickActors != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("TickActors"));
 
-		GetFunctionPointerUnmanagedCallersOnly(FString("TickSingleActor"), &ActorFunctions.TickSingleActor);
+		rc = GetFunctionPointerUnmanagedCallersOnly(FString("TickSingleActor"), &ActorFunctions.TickSingleActor);
 		checkf(rc == 0 && ActorFunctions.TickSingleActor != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("TickSingleActor"));
 		
 		return ActorFunctions;
