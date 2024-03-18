@@ -14,8 +14,8 @@ void UUnrealSharpSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	using namespace LambdaSnail::UnrealSharp;
 
-	FString path ("C:\\Projects\\Unreal\\DotnetIntegration\\Plugins\\UnrealSharp\\Resources\\");
-	ActorFunctions = UnNet_Execute(path);
+	FString const Path ("C:\\Projects\\Unreal\\DotnetIntegration\\Plugins\\UnrealSharp\\Resources\\");
+	ActorFunctions = InitializeDotnetCore(Path);
 }
 
 void UUnrealSharpSubsystem::Deinitialize()
@@ -26,10 +26,10 @@ LambdaSnail::UnrealSharp::ActorHandle UUnrealSharpSubsystem::RegisterActorForTic
 {
 	using namespace LambdaSnail::UnrealSharp;
 
-	ActorHandle const handle = ActorFunctions.register_managed_actor(
+	ActorHandle const handle = ActorFunctions.RegisterManagedActor(
 		STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.TestActor"));
 
-	ActorFunctions.bind_delegates(handle, Lambda::ToFunctionPointer([Actor]()
+	ActorFunctions.BindDelegates(handle, Lambda::ToFunctionPointer([Actor]()
 	    {
 	        UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", 1);
 	        SimpleTransform const Transform{Actor->GetActorLocation()};
@@ -46,5 +46,5 @@ Lambda::ToFunctionPointer([Actor](SimpleTransform Transform)
 
 void UUnrealSharpSubsystem::TickActor(LambdaSnail::UnrealSharp::ActorHandle Handle, float DeltaTime)
 {
-	ActorFunctions.tick_single_actor(Handle, DeltaTime);
+	ActorFunctions.TickSingleActor(Handle, DeltaTime);
 }

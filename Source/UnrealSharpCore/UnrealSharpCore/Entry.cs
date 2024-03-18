@@ -75,6 +75,8 @@ public static class ActorManager
         actor.ActorHandle = NextActorHandle++;
         Actors.Add(actor.ActorHandle, actor);
         
+        UELog.Log($"Registered Actor with handle {actor.ActorHandle}");
+        
         return actor.ActorHandle;
     }
 }

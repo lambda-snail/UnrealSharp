@@ -63,12 +63,11 @@ namespace LambdaSnail::UnrealSharp
 
 	struct ManagedActorFunctions
 	{
-		register_managed_actor_fn register_managed_actor;
-		bind_delegates_fn bind_delegates;
-		tick_actors_fn tick_actors;
-		tick_single_actor_fn tick_single_actor;
+		register_managed_actor_fn RegisterManagedActor;
+		bind_delegates_fn BindDelegates;
+		tick_actors_fn TickActors;
+		tick_single_actor_fn TickSingleActor;
 	};
-
-	ManagedActorFunctions UnNet_Execute(FString const& argv);
+	
 	ManagedActorFunctions InitializeDotnetCore(FString const& root_path);
 }
