@@ -31,40 +31,12 @@ typedef char_t unnet_char_t;
 #if defined(_WIN32)
 #define CORECLR_DELEGATE_CALLTYPE __stdcall
 #ifdef _WCHAR_T_DEFINED
-typedef wchar_t char_t;
 #else
 typedef unsigned short char_t;
 #endif
 #else
 #define CORECLR_DELEGATE_CALLTYPE
-typedef char char_t;
 #endif
-
-
-using string_t = std::basic_string<char_t>;
-
-// struct Vector
-// {
-// 	double X;
-// 	double Y;
-// 	double Z;
-// };
-//
-// struct SimpleTransform
-// {
-// 	FVector3f Location;
-// };
-//
-// typedef int (CORECLR_DELEGATE_CALLTYPE *register_managed_actor_fn)( unnet_char_t const* assembly, unnet_char_t const* type );
-// typedef int (CORECLR_DELEGATE_CALLTYPE *bind_delegates_fn)(int, SimpleTransform (*get_transform)());
-// typedef int (CORECLR_DELEGATE_CALLTYPE *tick_actors_fn)(float);
-//
-// struct ManagedActorFunctions
-// {
-// 	register_managed_actor_fn register_managed_actor;
-// 	bind_delegates_fn bind_delegates;
-// 	tick_actors_fn tick_actors;
-// };
 
 namespace LambdaSnail::UnrealSharp
 {
@@ -97,6 +69,6 @@ namespace LambdaSnail::UnrealSharp
 		tick_single_actor_fn tick_single_actor;
 	};
 
-	ManagedActorFunctions UnNet_Execute(unnet_char_t const* argv);
-	ManagedActorFunctions run_component_example(string_t const& root_path);
+	ManagedActorFunctions UnNet_Execute(FString const& argv);
+	ManagedActorFunctions InitializeDotnetCore(FString const& root_path);
 }
