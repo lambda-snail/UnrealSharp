@@ -121,10 +121,10 @@ namespace LambdaSnail::UnrealSharp
 		checkf(rc == 0 && ActorFunctions.BindDelegates != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("BindDelegates"));
 
 		// Tick Functions
-		GetFunctionPointerUnmanagedCallersOnly(FString("BindDelegates"), &ActorFunctions.TickActors);
+		GetFunctionPointerUnmanagedCallersOnly(FString("TickActors"), &ActorFunctions.TickActors);
 		checkf(rc == 0 && ActorFunctions.TickActors != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("TickActors"));
 
-		GetFunctionPointerUnmanagedCallersOnly(FString("BindDelegates"), &ActorFunctions.TickSingleActor);
+		GetFunctionPointerUnmanagedCallersOnly(FString("TickSingleActor"), &ActorFunctions.TickSingleActor);
 		checkf(rc == 0 && ActorFunctions.TickSingleActor != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("TickSingleActor"));
 		
 		return ActorFunctions;
