@@ -52,23 +52,21 @@ namespace LambdaSnail::UnrealSharp
 		FVector Location;
 	};
 
-	typedef int ActorHandle;
+	typedef uint32 ActorHandle;
 
-	typedef int (CORECLR_DELEGATE_CALLTYPE *register_managed_actor_fn)(unnet_char_t const* assembly,
-	                                                                   unnet_char_t const* type);
-	typedef int (CORECLR_DELEGATE_CALLTYPE *bind_delegates_fn)(ActorHandle, SimpleTransform (*get_transform)(),
-	                                                           void (*set_transform)(SimpleTransform));
-	typedef int (CORECLR_DELEGATE_CALLTYPE *tick_actors_fn)(float);
-	typedef int (CORECLR_DELEGATE_CALLTYPE *tick_single_actor_fn)(ActorHandle, float);
+	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *register_managed_actor_fn)(TCHAR const* assembly, TCHAR const* type);
+	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *bind_delegates_fn)(ActorHandle, SimpleTransform (*get_transform)(ActorHandle),
+	                                                           void (*set_transform)(ActorHandle, SimpleTransform));
+	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *tick_actors_fn)(float);
+	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *tick_single_actor_fn)(ActorHandle, float);
 
 	struct ManagedActorFunctions
 	{
-		register_managed_actor_fn register_managed_actor;
-		bind_delegates_fn bind_delegates;
-		tick_actors_fn tick_actors;
-		tick_single_actor_fn tick_single_actor;
+		register_managed_actor_fn RegisterManagedActor;
+		bind_delegates_fn BindDelegates;
+		tick_actors_fn TickActors;
+		tick_single_actor_fn TickSingleActor;
 	};
-
-	ManagedActorFunctions UnNet_Execute(FString const& argv);
+	
 	ManagedActorFunctions InitializeDotnetCore(FString const& root_path);
 }

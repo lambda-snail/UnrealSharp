@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Host.h"
 #include "GameFramework/Actor.h"
-#include "UnrealSharpTestActor.generated.h"
+#include "UnrealSharpDemoActor.generated.h"
 
 class UUnrealSharpSubsystem;
 
@@ -14,12 +14,12 @@ class UUnrealSharpSubsystem;
  * invoke c# logic on each tick.
  */
 UCLASS()
-class UNREALSHARP_API AUnrealSharpTestActor : public AActor
+class UNREALSHARP_API AUnrealSharpDemoActor : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	AUnrealSharpTestActor();
+	AUnrealSharpDemoActor();
 
 protected:
 

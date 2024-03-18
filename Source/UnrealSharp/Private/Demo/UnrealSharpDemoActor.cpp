@@ -1,13 +1,12 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "Demo/UnrealSharpTestActor.h"
+#include "Demo/UnrealSharpDemoActor.h"
 
 #include "UnrealSharpSubsystem.h"
 
 
 // Sets default values
-AUnrealSharpTestActor::AUnrealSharpTestActor()
+AUnrealSharpDemoActor::AUnrealSharpDemoActor()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -18,7 +17,7 @@ AUnrealSharpTestActor::AUnrealSharpTestActor()
  * RegisterActorForTick. This will create an instance of an actor class on the dotnet side, which will be able to control
  * the c++ actor on each tick.
  */
-void AUnrealSharpTestActor::BeginPlay()
+void AUnrealSharpDemoActor::BeginPlay()
 {
 	UnrealSharpSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UUnrealSharpSubsystem>();
 	UnrealSharpActorHandle = UnrealSharpSubsystem->RegisterActorForTick(this);
@@ -30,7 +29,7 @@ void AUnrealSharpTestActor::BeginPlay()
  * each tick or less frequently if we like - but remember to pass in the correct delta time so that the calculations can be
  * done correctly.
  */
-void AUnrealSharpTestActor::Tick(float DeltaTime)
+void AUnrealSharpDemoActor::Tick(float DeltaTime)
 {
 	UnrealSharpSubsystem->TickActor(UnrealSharpActorHandle, DeltaTime);
 }
