@@ -52,14 +52,14 @@ namespace LambdaSnail::UnrealSharp
 		FVector Location;
 	};
 
-	typedef int ActorHandle;
+	typedef uint32 ActorHandle;
 
-	typedef int (CORECLR_DELEGATE_CALLTYPE *register_managed_actor_fn)(unnet_char_t const* assembly,
+	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *register_managed_actor_fn)(unnet_char_t const* assembly,
 	                                                                   unnet_char_t const* type);
-	typedef int (CORECLR_DELEGATE_CALLTYPE *bind_delegates_fn)(ActorHandle, SimpleTransform (*get_transform)(),
-	                                                           void (*set_transform)(SimpleTransform));
-	typedef int (CORECLR_DELEGATE_CALLTYPE *tick_actors_fn)(float);
-	typedef int (CORECLR_DELEGATE_CALLTYPE *tick_single_actor_fn)(ActorHandle, float);
+	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *bind_delegates_fn)(ActorHandle, SimpleTransform (*get_transform)(ActorHandle),
+	                                                           void (*set_transform)(ActorHandle, SimpleTransform));
+	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *tick_actors_fn)(float);
+	typedef uint32 (CORECLR_DELEGATE_CALLTYPE *tick_single_actor_fn)(ActorHandle, float);
 
 	struct ManagedActorFunctions
 	{

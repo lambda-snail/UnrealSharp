@@ -22,26 +22,29 @@ void UUnrealSharpSubsystem::Deinitialize()
 {
 }
 
-LambdaSnail::UnrealSharp::ActorHandle UUnrealSharpSubsystem::RegisterActorForTick(AActor* Actor) const
+LambdaSnail::UnrealSharp::ActorHandle UUnrealSharpSubsystem::RegisterActorForTick(AActor* Actor)
 {
 	using namespace LambdaSnail::UnrealSharp;
 
-	ActorHandle const handle = ActorFunctions.RegisterManagedActor(
+	ActorHandle const Handle = ActorFunctions.RegisterManagedActor(
 		STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.TestActor"));
 
-	ActorFunctions.BindDelegates(handle, Lambda::ToFunctionPointer([Actor]()
+	RegisteredActors.Emplace(Handle, Actor); // TODO: Error handling if actor is already registered?
+	
+	ActorFunctions.BindDelegates(Handle, Lambda::ToFunctionPointer([this](ActorHandle ActorHandle)
 	    {
-	        UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", 1);
-	        SimpleTransform const Transform{Actor->GetActorLocation()};
+	        UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", ActorHandle);
+	        SimpleTransform const Transform{this->RegisteredActors[ActorHandle]->GetActorLocation()};
 	        return Transform;
 	    }),
-Lambda::ToFunctionPointer([Actor](SimpleTransform Transform)
+Lambda::ToFunctionPointer([this](ActorHandle ActorHandle, SimpleTransform Transform)
 	    {
-	        Actor->SetActorLocation(Transform.Location);
+			UE_LOGFMT(LogTemp, Warning, "SetTransform for handle {Handle}", ActorHandle);
+	        this->RegisteredActors[ActorHandle]->SetActorLocation(Transform.Location);
 	    }
 	));
 
-	return handle;
+	return Handle;
 }
 
 void UUnrealSharpSubsystem::TickActor(LambdaSnail::UnrealSharp::ActorHandle Handle, float DeltaTime)

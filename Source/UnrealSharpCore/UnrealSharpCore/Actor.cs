@@ -2,9 +2,9 @@
 
 namespace LambdaSnail.UnrealSharp;
 
-using unsafe get_transformdelegate = delegate*<Transform>;
-using unsafe set_transformdelegate = delegate*<Transform, void>;
 using ActorHandle = int;
+using unsafe get_transformdelegate = delegate*<int, Transform>;
+using unsafe set_transformdelegate = delegate*<int, Transform, void>;
 
 [StructLayout(LayoutKind.Sequential)]
 public struct Vector
@@ -39,11 +39,11 @@ public abstract class Actor
 
     protected unsafe Transform GetTransform()
     {
-        return get_transform();
+        return get_transform(ActorHandle);
     }
     
     protected unsafe void SetTransform(Transform transform)
     {
-        set_transform(transform);
+        set_transform(ActorHandle, transform);
     }
 }

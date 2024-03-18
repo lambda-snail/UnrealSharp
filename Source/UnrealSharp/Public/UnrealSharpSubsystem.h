@@ -19,7 +19,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	LambdaSnail::UnrealSharp::ActorHandle RegisterActorForTick(AActor* Actor) const;
+	LambdaSnail::UnrealSharp::ActorHandle RegisterActorForTick(AActor* Actor);
 	void TickActor(LambdaSnail::UnrealSharp::ActorHandle Handle, float DeltaTime);
 	
 private:
