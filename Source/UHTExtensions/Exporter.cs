@@ -113,17 +113,7 @@ public static class Exporter
 								factory.CommitOutput(fullPath, borrower.StringBuilder.ToString());
 								factory.Session.LogInfo($"Exported file {fullPath}");
 							}
-
-							// return type switch
-							// {
-							// 	UhtEnum => Exporter.Tag.UENUM,
-							// 	UhtScriptStruct => Exporter.Tag.USTRUCT,
-							// 	UhtClass @class => IsInterface(@class) ? Exporter.Tag.UINTERFACE : Exporter.Tag.UCLASS,
-							// 	UhtFunction function => IsDelegate(function) ? Exporter.Tag.UDELEGATE : Exporter.Tag.UFUNCTION,
-							// 	UhtProperty property => IsParameter(property) ? Exporter.Tag.UPARAM : Exporter.Tag.UPROPERTY,
-							// 	_ => default
-							// };
-
+							
 
 							// foreach (var (key, value) in type.MetaData.Dictionary!)
 							// {
@@ -139,31 +129,6 @@ public static class Exporter
 			factory.Session.LogError(e.Message);
 			factory.Session.LogError(e.StackTrace ?? string.Empty);
 		}
-
-		// foreach (var headerFile in factory.Session.SortedHeaderFiles)
-		// {
-		// 	foreach (var type in headerFile.Children)
-		// 	{
-		// 		foreach (var metadataUsage in MetadataUsageFinder.FindAllMetadataUsages(type))
-		// 		{
-		// 			// internal sealed record MetadataUsageInfo(string Key, string Value, Exporter.Tag Tag, string FilePath);
-		// 			factory.Session.LogInfo($"{metadataUsage.Key}: {metadataUsage.Value} - {metadataUsage.Tag}");
-		// 		}
-		// 	}
-		// }
-
-
-		// var knownSpecifiers = FindAllSpecifiers();
-		// var metadataUsages = MetadataUsageFinder.FindAllMetadataUsages(factory.Session.Packages);
-		// var knownMetadata = MetadataFinder.FindAllMetadata(metadataUsages);
-		// ExportKnownListsAsCodeForViewer(factory, knownSpecifiers, knownMetadata);
-		//
-		// if (factory.PluginModule!.TryGetDefine("SPECIFIER_EXPORT_JSON", out int exportJson) && exportJson == 1)
-		// {
-		// 	ExportKnownListsAsJson(factory, knownSpecifiers, knownMetadata);
-		// }
-
-		//factory.Session.LogInfo("Finished generating the specifier reference list.");
 	}
 
 	private static void GenerateCodeForClass(IUhtExportFactory factory, UhtClass @class)
