@@ -25,6 +25,18 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(meta = (DotnetReadWrite = "true")) 
+	uint32 Int32Prop;
+
+	UPROPERTY(meta = (DotnetReadWrite = "true")) 
+	uint64 Int64Prop; 
+	
+	UPROPERTY(meta = (DotnetReadWrite = "true")) 
+	float  FloatProp;
+
+	UPROPERTY(meta = (DotnetReadWrite = "true"))
+	double  DoubleProp;
+	
 	TObjectPtr<UUnrealSharpSubsystem> UnrealSharpSubsystem;
 	LambdaSnail::UnrealSharp::ActorHandle UnrealSharpActorHandle;
 	
