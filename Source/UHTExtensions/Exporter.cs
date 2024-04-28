@@ -62,15 +62,8 @@ public static class Exporter
 					foreach (var @class in header.Children)
 					{
 						//factory.Session.LogInfo($"# {@class.SourceName}");
-
-						bool haseGeneratedCode = false;
-						using BorrowStringBuilder borrower = new(StringBuilderCache.Big);
-
-						borrower.StringBuilder.Append("class ");
-						borrower.StringBuilder.AppendLine(@class.GetDisplayNameText());
-						borrower.StringBuilder.AppendLine("{");
-						borrower.StringBuilder.AppendLine("public:");
-
+						
+						List<UhtProperty> properties = new();
 						foreach (var type in @class.Children)
 						{
 							//factory.Session.LogInfo($"## {type.SourceName}");
@@ -78,16 +71,16 @@ public static class Exporter
 							// {
 							// 	factory.Session.LogInfo($"#### {metadata.Value}");
 							// }
-
-							if (type is UhtProperty property)
+							
+							if (type is UhtProperty uhtProperty)
 							{
 								UhtMetaDataKey? foundKey = readOnlyKey;
 								string? val = null;
-								bool? found = property.MetaData.Dictionary?.TryGetValue(readOnlyKey, out val);
+								bool? found = uhtProperty.MetaData.Dictionary?.TryGetValue(readOnlyKey, out val);
 								if (found is not true)
 								{
 									foundKey = readWriteKey;
-									found = property.MetaData.Dictionary?.TryGetValue(readWriteKey, out val);
+									found = uhtProperty.MetaData.Dictionary?.TryGetValue(readWriteKey, out val);
 								}
 
 								if (found != true || val is null)
@@ -95,21 +88,53 @@ public static class Exporter
 									continue;
 								}
 
+								properties.Add(uhtProperty);
 								
 								factory.Session.LogInfo(
-									$"# {@class.SourceName}: {foundKey} - {val}, TypeIndex: {property.TypeIndex}");
+									$"# {@class.SourceName}: {foundKey} - {val}, TypeIndex: {uhtProperty.TypeIndex}");
 
 								//borrower.StringBuilder.AppendPropertyText(property, UhtPropertyTextType.ExportMember);
-								property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember); // Output property type in c++
-								
+								// property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember); // Output property type in c++
 								//borrower.StringBuilder.AppendLine(property.Setter);
-
-								haseGeneratedCode = true;
 							}
 
-							if (haseGeneratedCode)
+							if (properties.Count > 0)
 							{
-								string fullPath = Path.Combine(factory.PluginModule!.OutputDirectory, @class.GetDisplayNameText() + ".dotnetintegration.g.h");
+								using BorrowStringBuilder borrower = new(StringBuilderCache.Big);
+
+								borrower.StringBuilder.AppendLine("#pragma once");
+								borrower.StringBuilder.AppendLine("namespace LambdaSnail::UnrealSharp {");
+								
+								borrower.StringBuilder.Append("class ");
+								borrower.StringBuilder.Append(@class.GetDisplayNameText());
+								borrower.StringBuilder.AppendLine("_Registrators {");
+								borrower.StringBuilder.AppendLine("public:");
+								borrower.StringBuilder.Append("void RegisterProperties(LambdaSnail::UnrealSharp::ActorHandle Handle,");
+
+								borrower.StringBuilder.Append(@class);
+								
+								borrower.StringBuilder.AppendLine("* ClassInstanceParameter) {");
+								borrower.StringBuilder.AppendLine(
+									"UUnrealSharpSubsystem* UnrealSharpSubsystem = ClassInstanceParameter->GetWorld()->GetGameInstance()->GetSubsystem<UUnrealSharpSubsystem>();"
+								);
+								
+								foreach (var property in properties)
+								{
+									// RegisterNumericProperty(LambdaSnail::UnrealSharp::ActorHandle Handle, UNumericProperty* Property)
+									borrower.StringBuilder.Append("UnrealSharpSubsystem->RegisterNumericProperty<");
+									property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember); // Output property type in c++
+									borrower.StringBuilder.Append(">(Handle,\"");
+									
+                                    borrower.StringBuilder.Append(property.SourceName);
+									
+                                    borrower.StringBuilder.AppendLine("\");");
+								}
+								
+								borrower.StringBuilder.AppendLine("}");
+								borrower.StringBuilder.AppendLine("};"); // Class
+								borrower.StringBuilder.AppendLine("}");  // Namespace
+								
+								string fullPath = Path.Combine(@class.Package.Module.OutputDirectory, @class.GetDisplayNameText() + ".dotnetintegration.g.h");
 								factory.CommitOutput(fullPath, borrower.StringBuilder.ToString());
 								factory.Session.LogInfo($"Exported file {fullPath}");
 							}

@@ -2,6 +2,8 @@
 
 #include "Demo/UnrealSharpDemoActor.h"
 
+#include "AUnrealSharpDemoActor.dotnetintegration.g.h"
+
 #include "UnrealSharpSubsystem.h"
 
 
@@ -22,6 +24,8 @@ void AUnrealSharpDemoActor::BeginPlay()
 	UnrealSharpSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UUnrealSharpSubsystem>();
 	UnrealSharpActorHandle = UnrealSharpSubsystem->RegisterActorForTick(this);
 	Super::BeginPlay();
+
+	
 }
 
 /**

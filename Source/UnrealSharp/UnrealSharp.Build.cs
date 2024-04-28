@@ -30,7 +30,7 @@ public class UnrealSharp : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				"Core", "CoreUObject",
 			}
 		);
 			

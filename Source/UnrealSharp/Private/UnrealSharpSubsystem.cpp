@@ -6,8 +6,8 @@
 #include <minwindef.h>
 
 #include "Host.h"
-#include "LambdaHelpers.h"
 #include "Logging/StructuredLog.h"
+#include "UObject/UnrealTypePrivate.h"
 
 
 void UUnrealSharpSubsystem::Initialize(FSubsystemCollectionBase& Collection)
