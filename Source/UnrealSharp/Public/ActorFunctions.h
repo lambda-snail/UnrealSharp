@@ -13,7 +13,6 @@ struct Transform
 // TODO: Remove lambda based api and use these instead
 // TODO: Return something that is compatible with C
 // TODO: What happens with the ptr when an actor gets destroyed?
-// TODO: Add functions for Translation, Rotation and Scale individually, so that we can set them without
 //	copying stuff that haven't changed
 extern "C" __declspec(dllexport) inline Transform GetTransform(AActor const* Actor)
 {
@@ -21,9 +20,39 @@ extern "C" __declspec(dllexport) inline Transform GetTransform(AActor const* Act
 	return { ._R = T.GetRotation().Euler(), ._T = T.GetTranslation(), ._S = T.GetScale3D() };
 }
 
+extern "C" __declspec(dllexport) inline FVector GetTranslation(AActor const* Actor)
+{
+	return Actor->GetActorLocation();
+}
+
+extern "C" __declspec(dllexport) inline FVector GetRotation(AActor const* Actor)
+{
+	return Actor->GetActorRotation().Euler();
+}
+
+extern "C" __declspec(dllexport) inline FVector GetScale(AActor const* Actor)
+{
+	return Actor->GetActorScale();
+}
+
 extern "C" __declspec(dllexport) inline void SetTransform(AActor* Actor, Transform Transform)
 {
 	Actor->SetActorLocation(Transform._T);
 	Actor->SetActorScale3D(Transform._S);
 	Actor->SetActorRotation(FRotator::MakeFromEuler(Transform._R));
+}
+
+extern "C" __declspec(dllexport) inline void SetLocation(AActor* Actor, FVector Location)
+{
+	Actor->SetActorLocation(Location);
+}
+
+extern "C" __declspec(dllexport) inline void SetRotation(AActor* Actor, FVector Rotation)
+{
+	Actor->SetActorRotation(FRotator::MakeFromEuler(Rotation));
+}
+
+extern "C" __declspec(dllexport) inline void SetScale(AActor* Actor, FVector Scale)
+{
+	Actor->SetActorScale3D(Scale);
 }
