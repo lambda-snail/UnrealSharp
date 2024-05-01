@@ -13,6 +13,11 @@ using ActorHandle = int;
 using unsafe get_transformdelegate = delegate*<int, Transform>;
 using unsafe set_transformdelegate = delegate*<int, Transform, void>;
 
+public static class Constants
+{
+    public const string DebugDllName = "UnrealEditor-UnrealSharp-Win64-DebugGame.dll";
+}
+
 public static partial class ActorManager
 {
     static ActorManager()
@@ -27,12 +32,12 @@ public static partial class ActorManager
         });
     }
     
-    // TODO: Find a way to handle dll names - __Internal doesn't seem to work here
+    // TODO: Find a better way to handle dll names - __Internal doesn't seem to work here
     //[LibraryImport("__Internal", EntryPoint = "TestActorFunctions")]
-    [LibraryImport("UnrealEditor-UnrealSharp-Win64-DebugGame.dll", EntryPoint = "SetTransform")]
+    [LibraryImport(Constants.DebugDllName, EntryPoint = "SetTransform")]
     internal static partial void SetTransform(IntPtr actor, Transform transform);
     
-    [LibraryImport("UnrealEditor-UnrealSharp-Win64-DebugGame.dll", EntryPoint = "GetTransform")]
+    [LibraryImport(Constants.DebugDllName, EntryPoint = "GetTransform")]
     internal static partial Transform GetTransform(IntPtr actor);
     
     
