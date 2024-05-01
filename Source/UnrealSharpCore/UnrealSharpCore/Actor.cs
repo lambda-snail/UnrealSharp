@@ -17,7 +17,10 @@ public struct Vector
 [StructLayout(LayoutKind.Sequential)]
 public struct Transform
 {
-    public Vector Location;
+    //public Vector Location;
+    public Vector Rotation;
+    public Vector Translation;
+    public Vector Scale;
 }
 
 public abstract class Actor
@@ -34,7 +37,9 @@ public abstract class Actor
     public Actor() {}
     
     public ActorHandle ActorHandle { get; set; }
-    
+
+    public unsafe IntPtr ActorPtr { get; set; }
+
     public abstract void Tick(float deltaTime);
 
     protected unsafe Transform GetTransform()
@@ -42,8 +47,8 @@ public abstract class Actor
         return get_transform(ActorHandle);
     }
     
-    protected unsafe void SetTransform(Transform transform)
-    {
-        set_transform(ActorHandle, transform);
-    }
+    // protected unsafe void SetTransform(Transform transform)
+    // {
+    //     set_transform(ActorHandle, transform);
+    // }
 }

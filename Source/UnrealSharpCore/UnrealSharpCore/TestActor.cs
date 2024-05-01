@@ -9,16 +9,16 @@ public class TestActor : Actor
     
     public override void Tick(float deltaTime)
     {
-        Transform t = GetTransform();
+        Transform t = ActorManager.GetTransform(ActorPtr);
 
         float direction = _shouldGoUp ? 1f : -1f;
-        t.Location.Z += (_speed * deltaTime * direction);
-        if (t.Location.Z >= 400f || t.Location.Z <= 50f)
+        t.Translation.Z += (_speed * deltaTime * direction);
+        if (t.Translation.Z >= 400f || t.Translation.Z <= 50f)
         {
             _shouldGoUp = !_shouldGoUp;
         }
         
-        UELog.Log($"Actor with handle {ActorHandle}: Transform=({t.Location.X},{t.Location.Y},{t.Location.Z})");
-        SetTransform(t);
+        //UELog.Log($"Actor with handle {ActorHandle}: Transform=({t.Translation.X};{t.Translation.Y};{t.Translation.Z})");
+        ActorManager.SetTransform(ActorPtr, t);
     }
 }

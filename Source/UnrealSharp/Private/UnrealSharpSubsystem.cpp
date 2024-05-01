@@ -9,6 +9,11 @@
 #include "Logging/StructuredLog.h"
 #include "UObject/UnrealTypePrivate.h"
 
+// 
+// TODO: Read these about __Internal
+// https://github.com/dotnet/runtime/issues/7267
+// https://github.com/dotnet/runtime/issues/56331
+// Can this be used here?
 
 void UUnrealSharpSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -27,7 +32,7 @@ LambdaSnail::UnrealSharp::ActorHandle UUnrealSharpSubsystem::RegisterActorForTic
 	using namespace LambdaSnail::UnrealSharp;
 
 	ActorHandle const Handle = ActorFunctions.RegisterManagedActor(
-		STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.TestActor"));
+		STR("UnrealSharpCore"), STR("LambdaSnail.UnrealSharp.TestActor"), Actor);
 
 	RegisteredActors.Emplace(Handle, Actor); // TODO: Error handling if actor is already registered?
 	

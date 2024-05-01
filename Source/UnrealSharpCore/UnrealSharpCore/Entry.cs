@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Unicode;
 
 [module: System.Runtime.InteropServices.DefaultCharSet( CharSet.Unicode )]
+[assembly: System.Runtime.CompilerServices.DisableRuntimeMarshallingAttribute]
 
 namespace LambdaSnail.UnrealSharp;
 
@@ -11,8 +13,30 @@ using ActorHandle = int;
 using unsafe get_transformdelegate = delegate*<int, Transform>;
 using unsafe set_transformdelegate = delegate*<int, Transform, void>;
 
-public static class ActorManager
+public static partial class ActorManager
 {
+    static ActorManager()
+    {
+        NativeLibrary.SetDllImportResolver(Assembly.GetAssembly(typeof(ActorManager))!, (name, _, paths) =>
+        {
+            if (name == "__Internal")
+            {
+                return NativeLibrary.GetMainProgramHandle(); // After dotnet 7, https://github.com/dotnet/runtime/issues/56331
+            }
+            return IntPtr.Zero;
+        });
+    }
+    
+    // TODO: Find a way to handle dll names - __Internal doesn't seem to work here
+    //[LibraryImport("__Internal", EntryPoint = "TestActorFunctions")]
+    [LibraryImport("UnrealEditor-UnrealSharp-Win64-DebugGame.dll", EntryPoint = "SetTransform")]
+    internal static partial void SetTransform(IntPtr actor, Transform transform);
+    
+    [LibraryImport("UnrealEditor-UnrealSharp-Win64-DebugGame.dll", EntryPoint = "GetTransform")]
+    internal static partial Transform GetTransform(IntPtr actor);
+    
+    
+    
     private static Dictionary<ActorHandle, Actor> Actors { get; set; } = default!;
     private static ActorHandle NextActorHandle = 0;
     
@@ -53,7 +77,7 @@ public static class ActorManager
     }
     
     [UnmanagedCallersOnly]
-    public static ActorHandle RegisterActor(IntPtr assembly, IntPtr type)
+    public static ActorHandle RegisterActor(IntPtr assembly, IntPtr type, IntPtr nativeActor)
     {
         string typeName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
             ? Marshal.PtrToStringUni(type)!
@@ -72,6 +96,7 @@ public static class ActorManager
         }
         
         Actor actor = (Actor)obj;
+        actor.ActorPtr = nativeActor;
         actor.ActorHandle = NextActorHandle++;
         Actors.Add(actor.ActorHandle, actor);
         

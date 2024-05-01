@@ -26,6 +26,26 @@
 
 #endif
 
+
+
+// // Store the module handle
+// HMODULE g_hModule = nullptr;
+//
+// BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
+// 	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
+// 		g_hModule = hModule;
+// 	}
+// 	return TRUE;
+// }
+//
+// // Get the DLL filename
+// std::wstring GetDllFilename() {
+// 	wchar_t buf[MAX_PATH];
+// 	GetModuleFileName(g_hModule, buf, MAX_PATH);
+// 	return buf;
+// }
+
+
 namespace LambdaSnail::UnrealSharp
 {
 	// Globals to hold hostfxr exports
@@ -72,7 +92,7 @@ namespace LambdaSnail::UnrealSharp
 			nullptr,
 			reinterpret_cast<void**>(&entry_point));
 		assert(rc == 0 && entry_point != nullptr && "Failure: load_assembly_and_get_function_pointer()");
-
+		
 		entry_point(nullptr, 0);
 
 		// ###############################
