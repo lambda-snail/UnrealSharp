@@ -23,6 +23,12 @@ public struct Transform
     public Vector Scale;
 }
 
+// [StructLayout(LayoutKind.Sequential)]
+// public struct TransformWrapper
+// {
+//     public Transform Transform;
+// }
+
 public abstract class Actor
 {
     private unsafe get_transformdelegate get_transform;
@@ -42,10 +48,10 @@ public abstract class Actor
 
     public abstract void Tick(float deltaTime);
 
-    protected unsafe Transform GetTransform()
-    {
-        return get_transform(ActorHandle);
-    }
+    // protected unsafe Transform GetTransform()
+    // {
+    //     return get_transform(ActorHandle);
+    // }
     
     // protected unsafe void SetTransform(Transform transform)
     // {

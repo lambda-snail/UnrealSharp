@@ -6,7 +6,7 @@ public class TestActor : Actor
 {
     private bool _shouldGoUp = true;
     private readonly float _speed = 100f;
-    
+
     public override void Tick(float deltaTime)
     {
         Transform t = ActorManager.GetTransform(ActorPtr);
@@ -17,7 +17,7 @@ public class TestActor : Actor
         {
             _shouldGoUp = !_shouldGoUp;
         }
-        
+
         //UELog.Log($"Actor with handle {ActorHandle}: Transform=({t.Translation.X};{t.Translation.Y};{t.Translation.Z})");
         ActorManager.SetTransform(ActorPtr, t);
     }
