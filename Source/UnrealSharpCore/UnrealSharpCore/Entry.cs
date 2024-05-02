@@ -40,6 +40,11 @@ public static partial class ActorManager
     [LibraryImport(Constants.DebugDllName, EntryPoint = "GetTransform")]
     internal static partial Transform GetTransform(IntPtr actor);
     
+    [LibraryImport(Constants.DebugDllName, EntryPoint = "GetTranslation")]
+    internal static unsafe partial Vector GetTranslation(IntPtr actor);
+    
+    
+    
     
     
     private static Dictionary<ActorHandle, Actor> Actors { get; set; } = default!;
