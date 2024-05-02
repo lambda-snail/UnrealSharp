@@ -222,8 +222,10 @@ public static class Exporter
 				borrower.StringBuilder.AppendLine(";");
 				break;
 			case AccessMethod.UnrealReflection:
-				//FProperty* Property2 = this->GetClass()->FindPropertyByName("FloatProp");
-				borrower.StringBuilder.Append("static FProperty* Property = Instance->GetClass()->FindPropertyByName(\"");
+				//FProperty* Property2 = XXX::StaticClass()->FindPropertyByName("FloatProp");
+				borrower.StringBuilder.Append("static FProperty* Property = ");
+				borrower.StringBuilder.Append(@class.GetDisplayNameText());
+				borrower.StringBuilder.Append("::StaticClass()->FindPropertyByName(\"");
 				borrower.StringBuilder.Append(property.GetDisplayNameText());
 				borrower.StringBuilder.AppendLine("\");");
 				
