@@ -21,20 +21,26 @@ class UNREALSHARP_API AUnrealSharpDemoActor : public AActor
 public:
 	AUnrealSharpDemoActor();
 
+	// TODO: Why is this handled as public without the DotnetAccess?
+	UPROPERTY(meta = (DotnetReadWrite = "true")) 
+	uint64 Int64Prop; 
+
+	// TODO: Handle constness as parameter as well?
+	// TODO: Look over the metadata api for property binding generation - use a DSL?
+	double GetDoubleProp() const { return {}; };
+	void SetDoubleProp(double Prop) {};
+	
 protected:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY(meta = (DotnetReadWrite = "true", Access = "public|member_function_name|empty")) 
+	UPROPERTY(meta = (DotnetReadWrite = "true", DotnetAccess = "Reflection")) 
 	uint32 Int32Prop;
-
-	UPROPERTY(meta = (DotnetReadWrite = "true")) 
-	uint64 Int64Prop; 
 	
-	UPROPERTY(meta = (DotnetReadWrite = "true")) 
+	UPROPERTY(meta = (DotnetReadWrite = "true", DotnetAccess = "Reflection")) 
 	float  FloatProp;
 
-	UPROPERTY(meta = (DotnetReadWrite = "true"))
+	UPROPERTY(meta = (DotnetReadWrite = "true", DotnetAccess = "DoubleProp"))
 	double  DoubleProp;
 	
 	TObjectPtr<UUnrealSharpSubsystem> UnrealSharpSubsystem;

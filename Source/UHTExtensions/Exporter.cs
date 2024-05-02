@@ -217,8 +217,6 @@ public static class Exporter
 		switch (descriptor.AccessInformation.AccessMethod)
 		{
 			case AccessMethod.Public:
-				
-				
 				borrower.StringBuilder.Append("*TypedPtr = Instance->");
 				borrower.StringBuilder.Append(property.GetDisplayNameText());
 				borrower.StringBuilder.AppendLine(";");
@@ -236,7 +234,7 @@ public static class Exporter
 				borrower.StringBuilder.Append("*TypedPtr = Val;");
 				break;
 			case AccessMethod.MemberFunction:
-				borrower.StringBuilder.Append("*TypedPtr = Instance->");
+				borrower.StringBuilder.Append("*TypedPtr = Instance->Get"); // Get + Function Name
 				borrower.StringBuilder.Append(descriptor.AccessInformation.MemberFunctionForPropertyAccess);
 				borrower.StringBuilder.AppendLine("();");
 				break;
@@ -270,10 +268,11 @@ public static class Exporter
 		bool? found = uhtProperty.MetaData.Dictionary?.TryGetValue(accessSpecifierKey, out accessMethod);
 		if (found == true)
 		{
+			Console.WriteLine(accessMethod);
 			AccessMethod method = accessMethod switch
 			{
 				"Public" => AccessMethod.Public,
-				"" or "Reflection" => AccessMethod.UnrealReflection,
+				null or "" or "Reflection" => AccessMethod.UnrealReflection,
 				_ => AccessMethod.MemberFunction
 			};
 			
