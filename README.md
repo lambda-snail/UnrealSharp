@@ -93,7 +93,7 @@ Which leads to the following bindings getting generated:
 ```c++
 extern "C" __declspec(dllexport) inline void Get_Int32Prop(AUnrealSharpDemoActor const* Instance, void* Parameter) {
     auto* TypedPtr = static_cast<uint32*>(Parameter);
-    static FProperty* Property = Instance->GetClass()->FindPropertyByName("Int32Prop");
+    static FProperty* Property = AUnrealSharpDemoActor::StaticClass()->FindPropertyByName("Int32Prop");
     uint32 Val;Property->GetValue_InContainer(Instance, &Val);
     *TypedPtr = Val;
 }
