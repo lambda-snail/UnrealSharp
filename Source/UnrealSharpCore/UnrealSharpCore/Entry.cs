@@ -41,10 +41,23 @@ public static partial class ActorManager
     internal static partial Transform GetTransform(IntPtr actor);
     
     [LibraryImport(Constants.DebugDllName, EntryPoint = "GetTranslation")]
-    internal static unsafe partial Vector GetTranslation(IntPtr actor);
+    internal static unsafe partial void GetTranslation(IntPtr actor, out Vector vector);
+    
+    [LibraryImport(Constants.DebugDllName, EntryPoint = "GetRotation")]
+    internal static unsafe partial void GetRotation(IntPtr actor, out Vector vector);
+    
+    [LibraryImport(Constants.DebugDllName, EntryPoint = "GetScale")]
+    internal static unsafe partial void GetScale(IntPtr actor, out Vector vector);
     
     
+    [LibraryImport(Constants.DebugDllName, EntryPoint = "SetTranslation")]
+    internal static unsafe partial void SetTranslation(IntPtr actor, ref Vector vector);
     
+    [LibraryImport(Constants.DebugDllName, EntryPoint = "SetRotation")]
+    internal static unsafe partial void SetRotation(IntPtr actor, ref Vector vector);
+    
+    [LibraryImport(Constants.DebugDllName, EntryPoint = "SetScale")]
+    internal static unsafe partial void SetScale(IntPtr actor, ref Vector vector);
     
     
     private static Dictionary<ActorHandle, Actor> Actors { get; set; } = default!;

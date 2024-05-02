@@ -10,31 +10,17 @@ public class TestActor : Actor
 
     public override void Tick(float deltaTime)
     {
-        Transform t = ActorManager.GetTransform(ActorPtr);
-
-        try
-        {
-            // Vector vector = new Vector();
-            // ActorManager.GetTranslation(ActorPtr, ref vector);
-            // UELog.Log($"Translation is: ({vector.X};{vector.Y};{vector.Z})");
-            
-            Vector vector = ActorManager.GetTranslation(ActorPtr);
-            UELog.Log($"Translation is: ({vector.X};{vector.Y};{vector.Z})");
-        }
-        catch (Exception e)
-        {
-            UELog.Log(e.Message);
-            UELog.Log(e.StackTrace!);
-        }
+        //ActorManager.GetTranslation(ActorPtr, out Vector vector);
+        Vector vector = Translation;
 
         float direction = _shouldGoUp ? 1f : -1f;
-        t.Translation.Z += (_speed * deltaTime * direction);
-        if (t.Translation.Z >= 400f || t.Translation.Z <= 50f)
+        vector.Z += (_speed * deltaTime * direction);
+        if (vector.Z >= 400f || vector.Z <= 50f)
         {
             _shouldGoUp = !_shouldGoUp;
         }
-
-        //UELog.Log($"Actor with handle {ActorHandle}: Transform=({t.Translation.X};{t.Translation.Y};{t.Translation.Z})");
-        ActorManager.SetTransform(ActorPtr, t);
+        
+        //ActorManager.SetTranslation(ActorPtr, ref vector);
+        Translation = vector;
     }
 }

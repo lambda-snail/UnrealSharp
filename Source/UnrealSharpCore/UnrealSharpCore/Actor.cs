@@ -17,19 +17,12 @@ public struct Vector
 [StructLayout(LayoutKind.Sequential)]
 public struct Transform
 {
-    //public Vector Location;
     public Vector Rotation;
     public Vector Translation;
     public Vector Scale;
 }
 
-// [StructLayout(LayoutKind.Sequential)]
-// public struct TransformWrapper
-// {
-//     public Transform Transform;
-// }
-
-public abstract class Actor
+public abstract partial class Actor
 {
     private unsafe get_transformdelegate get_transform;
     private unsafe set_transformdelegate set_transform;
@@ -48,13 +41,44 @@ public abstract class Actor
 
     public abstract void Tick(float deltaTime);
 
-    // protected unsafe Transform GetTransform()
-    // {
-    //     return get_transform(ActorHandle);
-    // }
     
-    // protected unsafe void SetTransform(Transform transform)
-    // {
-    //     set_transform(ActorHandle, transform);
-    // }
+    
+    public Vector Translation
+    {
+        get
+        {
+            ActorManager.GetTranslation(ActorPtr, out Vector vector);
+            return vector;
+        }
+        set
+        {
+            ActorManager.SetTranslation(ActorPtr, ref value);
+        }
+    }
+    
+    public Vector Rotation
+    {
+        get
+        {
+            ActorManager.GetRotation(ActorPtr, out Vector vector);
+            return vector;
+        }
+        set
+        {
+            ActorManager.SetRotation(ActorPtr, ref value);
+        }
+    }
+    
+    public Vector Scale
+    {
+        get
+        {
+            ActorManager.GetScale(ActorPtr, out Vector vector);
+            return vector;
+        }
+        set
+        {
+            ActorManager.SetScale(ActorPtr, ref value);
+        }
+    }
 }
