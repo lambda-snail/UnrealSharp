@@ -113,12 +113,17 @@ public static class Exporter
 							
 							if (type is UhtProperty uhtProperty)
 							{
-								AccessMode accessMode = GetAccessModeKey(uhtProperty, defaultMode: AccessMode.ReadOnly);
+								AccessMode? accessMode = GetAccessModeKey(uhtProperty);
+								if (accessMode is null)
+								{
+									continue;
+								}
+								
 								AccessInformation accessInformation = GetAccessInformation(uhtProperty);
 
 								properties.Add(new()
 								{
-									AccessMode = accessMode,
+									AccessMode = accessMode.Value,
 									AccessInformation = accessInformation,
 									Property = uhtProperty
 								});
@@ -242,7 +247,7 @@ public static class Exporter
 		borrower.StringBuilder.AppendLine("}"); // End of getter
 	}
 
-	private static AccessMode GetAccessModeKey(UhtProperty uhtProperty, AccessMode defaultMode)
+	private static AccessMode? GetAccessModeKey(UhtProperty uhtProperty)
 	{
 		bool? found = uhtProperty.MetaData.Dictionary?.ContainsKey(readOnlyKey);
 		if (found is true)
@@ -256,7 +261,7 @@ public static class Exporter
 			return AccessMode.ReadWrite;
 		}
 
-		return defaultMode;
+		return null;
 	}
 
 	private static AccessInformation GetAccessInformation(UhtProperty uhtProperty)
