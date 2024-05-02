@@ -9,11 +9,6 @@
 #include "Logging/StructuredLog.h"
 #include "UObject/UnrealTypePrivate.h"
 
-// 
-// TODO: Read these about __Internal
-// https://github.com/dotnet/runtime/issues/7267
-// https://github.com/dotnet/runtime/issues/56331
-// Can this be used here?
 
 void UUnrealSharpSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {

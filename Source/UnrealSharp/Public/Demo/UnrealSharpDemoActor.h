@@ -25,7 +25,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY(meta = (DotnetReadWrite = "true")) 
+	UPROPERTY(meta = (DotnetReadWrite = "true", Access = "public|member_function_name|empty")) 
 	uint32 Int32Prop;
 
 	UPROPERTY(meta = (DotnetReadWrite = "true")) 

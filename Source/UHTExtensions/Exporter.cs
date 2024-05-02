@@ -14,6 +14,12 @@ using UnrealBuildTool;
 [UnrealHeaderTool]
 public static class Exporter
 {
+	static readonly string DotnetReadOnlySpecifier = "DotnetReadOnly";
+	static readonly string DotnetReadWriteSpecifier = "DotnetReadWrite";
+	
+	static readonly UhtMetaDataKey readOnlyKey = new UhtMetaDataKey(DotnetReadOnlySpecifier);
+	static readonly UhtMetaDataKey readWriteKey = new UhtMetaDataKey(DotnetReadWriteSpecifier);
+	
 	[UhtExporter(Name = "TestExporter", ModuleName = "UHTExtensions", Options = UhtExporterOptions.Default)]
 	public static void Generate(IUhtExportFactory factory)
 	{
@@ -22,11 +28,9 @@ public static class Exporter
 
 		//factory.Session.SortedHeaderFiles[0].HeaderFile.Children
 
-		string DotnetReadOnlySpecifier = "DotnetReadOnly";
-		string DotnetReadWriteSpecifier = "DotnetReadWrite";
+		
 
-		var readOnlyKey = new UhtMetaDataKey(DotnetReadOnlySpecifier);
-		var readWriteKey = new UhtMetaDataKey(DotnetReadWriteSpecifier);
+		
 
 		try
 		{
@@ -120,16 +124,35 @@ public static class Exporter
 									borrower.StringBuilder.Append(@class.GetDisplayNameText());
 									borrower.StringBuilder.AppendLine(" const* Instance, void* Parameter) {");
 
-									// Complex types
+									// Publicly available
+									// borrower.StringBuilder.Append("auto* TypedPtr = static_cast<");
+									// property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+									// borrower.StringBuilder.AppendLine("*>(Parameter);");
+									//
+									// borrower.StringBuilder.Append("*TypedPtr = Instance->");
+									// borrower.StringBuilder.Append(property.GetDisplayNameText());
+									// borrower.StringBuilder.AppendLine(";");
+									
+									// Non-publicly available
+									
+									//FProperty* Property2 = this->GetClass()->FindPropertyByName("FloatProp");
+									borrower.StringBuilder.Append("static FProperty* Property = Instance->GetClass()->FindPropertyByName(\"");
+									borrower.StringBuilder.Append(property.GetDisplayNameText());
+									borrower.StringBuilder.AppendLine("\");");
+									
+									
 									borrower.StringBuilder.Append("auto* TypedPtr = static_cast<");
 									property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
 									borrower.StringBuilder.AppendLine("*>(Parameter);");
+
+									//int32 P;
+									//Property->GetValue_InContainer(this, &P); *TypedPtr = Val;
+									property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+									borrower.StringBuilder.Append(" Val;");
+									borrower.StringBuilder.AppendLine("Property->GetValue_InContainer(Instance, &Val);");
+									borrower.StringBuilder.Append("*TypedPtr = Val;");
 									
-									borrower.StringBuilder.Append("*TypedPtr = Instance->");
-									borrower.StringBuilder.Append(property.GetDisplayNameText());
-									borrower.StringBuilder.AppendLine(";");
-									
-									//auto* TypedPtr = static_cast<FVector*>(Rotator);
+									// User defined getter
 									
 									borrower.StringBuilder.AppendLine("}");
 								}
