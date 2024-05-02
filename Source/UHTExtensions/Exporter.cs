@@ -1,24 +1,63 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using EpicGames.Core;
 using EpicGames.UHT.Tables;
 using EpicGames.UHT.Types;
 using EpicGames.UHT.Utils;
-using UnrealBuildTool;
+
+public enum AccessMode
+{
+	ReadOnly,
+	ReadWrite
+}
+
+public enum AccessMethod
+{
+	Public,
+	MemberFunction,
+	UnrealReflection
+}
+
+public struct AccessInformation
+{
+	public AccessMethod AccessMethod { get; set; }
+	public string? MemberFunctionForPropertyAccess { get; set; }
+}
+
+public struct PropertyDescriptor
+{
+	public UhtProperty Property { get; set; }
+	public AccessMode AccessMode { get; set; }
+	public AccessInformation AccessInformation { get; set; }
+}
 
 [UnrealHeaderTool]
 public static class Exporter
 {
+	/// <summary>
+	/// If this is set to true, dotnet code will only be able to read the corresponding UProperty. 
+	/// </summary>
 	static readonly string DotnetReadOnlySpecifier = "DotnetReadOnly";
+	
+	/// <summary>
+	/// Allows dotnet to both read and write the corresponding UProperty.
+	/// </summary>
 	static readonly string DotnetReadWriteSpecifier = "DotnetReadWrite";
+	
+	/// <summary>
+	/// Determines how the binding functions access the UProperty. The following values are allowed:
+	/// - Public: The generated bindings assume that the UProperty is public
+	/// - Function Name: The generated bindings will attempt to read and write the UProperty using a member function with
+	///		this name.
+	/// - Empty (not specified): The generated bindings will attempt to access the UProperty using the reflection system (FProperty et al.)
+	/// </summary>
+	static readonly string DotnetAccessSpecifier = "DotnetAccess";
 	
 	static readonly UhtMetaDataKey readOnlyKey = new UhtMetaDataKey(DotnetReadOnlySpecifier);
 	static readonly UhtMetaDataKey readWriteKey = new UhtMetaDataKey(DotnetReadWriteSpecifier);
+	static readonly UhtMetaDataKey accessSpecifierKey = new UhtMetaDataKey(DotnetAccessSpecifier);
 	
 	[UhtExporter(Name = "TestExporter", ModuleName = "UHTExtensions", Options = UhtExporterOptions.Default)]
 	public static void Generate(IUhtExportFactory factory)
@@ -27,11 +66,7 @@ public static class Exporter
 		factory.Session.LogInfo("TestExporter executed!");
 
 		//factory.Session.SortedHeaderFiles[0].HeaderFile.Children
-
 		
-
-		
-
 		try
 		{
 			foreach (var package in factory.Session.Packages)
@@ -67,7 +102,7 @@ public static class Exporter
 					{
 						//factory.Session.LogInfo($"# {@class.SourceName}");
 						
-						List<UhtProperty> properties = new();
+						List<PropertyDescriptor> properties = new();
 						foreach (var type in @class.Children)
 						{
 							//factory.Session.LogInfo($"## {type.SourceName}");
@@ -78,24 +113,15 @@ public static class Exporter
 							
 							if (type is UhtProperty uhtProperty)
 							{
-								UhtMetaDataKey? foundKey = readOnlyKey;
-								string? val = null;
-								bool? found = uhtProperty.MetaData.Dictionary?.TryGetValue(readOnlyKey, out val);
-								if (found is not true)
-								{
-									foundKey = readWriteKey;
-									found = uhtProperty.MetaData.Dictionary?.TryGetValue(readWriteKey, out val);
-								}
+								AccessMode accessMode = GetAccessModeKey(uhtProperty, defaultMode: AccessMode.ReadOnly);
+								AccessInformation accessInformation = GetAccessInformation(uhtProperty);
 
-								if (found != true || val is null)
+								properties.Add(new()
 								{
-									continue;
-								}
-
-								properties.Add(uhtProperty);
-								
-								factory.Session.LogInfo(
-									$"# {@class.SourceName}: {foundKey} - {val}, TypeIndex: {uhtProperty.TypeIndex}");
+									AccessMode = accessMode,
+									AccessInformation = accessInformation,
+									Property = uhtProperty
+								});
 
 								//borrower.StringBuilder.AppendPropertyText(property, UhtPropertyTextType.ExportMember);
 								// property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember); // Output property type in c++
@@ -115,46 +141,9 @@ public static class Exporter
 								// borrower.StringBuilder.AppendLine("_DotnetBindings {");
 								// borrower.StringBuilder.AppendLine("public:");
 
-								foreach (UhtProperty property in properties)
+								foreach (PropertyDescriptor descriptor in properties)
 								{
-									// Getter
-									borrower.StringBuilder.Append("extern \"C\" __declspec(dllexport) inline void Get_");
-									borrower.StringBuilder.Append(property.GetDisplayNameText());
-									borrower.StringBuilder.Append("(");
-									borrower.StringBuilder.Append(@class.GetDisplayNameText());
-									borrower.StringBuilder.AppendLine(" const* Instance, void* Parameter) {");
-
-									// Publicly available
-									// borrower.StringBuilder.Append("auto* TypedPtr = static_cast<");
-									// property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
-									// borrower.StringBuilder.AppendLine("*>(Parameter);");
-									//
-									// borrower.StringBuilder.Append("*TypedPtr = Instance->");
-									// borrower.StringBuilder.Append(property.GetDisplayNameText());
-									// borrower.StringBuilder.AppendLine(";");
-									
-									// Non-publicly available
-									
-									//FProperty* Property2 = this->GetClass()->FindPropertyByName("FloatProp");
-									borrower.StringBuilder.Append("static FProperty* Property = Instance->GetClass()->FindPropertyByName(\"");
-									borrower.StringBuilder.Append(property.GetDisplayNameText());
-									borrower.StringBuilder.AppendLine("\");");
-									
-									
-									borrower.StringBuilder.Append("auto* TypedPtr = static_cast<");
-									property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
-									borrower.StringBuilder.AppendLine("*>(Parameter);");
-
-									//int32 P;
-									//Property->GetValue_InContainer(this, &P); *TypedPtr = Val;
-									property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
-									borrower.StringBuilder.Append(" Val;");
-									borrower.StringBuilder.AppendLine("Property->GetValue_InContainer(Instance, &Val);");
-									borrower.StringBuilder.Append("*TypedPtr = Val;");
-									
-									// User defined getter
-									
-									borrower.StringBuilder.AppendLine("}");
+									GenerateBindingsForProperty(descriptor, borrower, @class);
 								}
 								
 								// extern "C" __declspec(dllexport) inline void GetRotation(AActor const* Actor, void* Rotator)
@@ -202,6 +191,91 @@ public static class Exporter
 			factory.Session.LogError(e.Message);
 			factory.Session.LogError(e.StackTrace ?? string.Empty);
 		}
+	}
+
+	private static void GenerateBindingsForProperty(PropertyDescriptor descriptor, BorrowStringBuilder borrower,
+		UhtType @class)
+	{
+		UhtProperty property = descriptor.Property;
+
+		// Getter - binding signature
+		borrower.StringBuilder.Append("extern \"C\" __declspec(dllexport) inline void Get_");
+		borrower.StringBuilder.Append(property.GetDisplayNameText());
+		borrower.StringBuilder.Append("(");
+		borrower.StringBuilder.Append(@class.GetDisplayNameText());
+		borrower.StringBuilder.AppendLine(" const* Instance, void* Parameter) {");
+		
+		borrower.StringBuilder.Append("auto* TypedPtr = static_cast<");
+		property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+		borrower.StringBuilder.AppendLine("*>(Parameter);");
+		
+		switch (descriptor.AccessInformation.AccessMethod)
+		{
+			case AccessMethod.Public:
+				
+				
+				borrower.StringBuilder.Append("*TypedPtr = Instance->");
+				borrower.StringBuilder.Append(property.GetDisplayNameText());
+				borrower.StringBuilder.AppendLine(";");
+				break;
+			case AccessMethod.UnrealReflection:
+				//FProperty* Property2 = this->GetClass()->FindPropertyByName("FloatProp");
+				borrower.StringBuilder.Append("static FProperty* Property = Instance->GetClass()->FindPropertyByName(\"");
+				borrower.StringBuilder.Append(property.GetDisplayNameText());
+				borrower.StringBuilder.AppendLine("\");");
+				
+				//example: int32 P; Property->GetValue_InContainer(this, &P); *TypedPtr = Val;
+				property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+				borrower.StringBuilder.Append(" Val;");
+				borrower.StringBuilder.AppendLine("Property->GetValue_InContainer(Instance, &Val);");
+				borrower.StringBuilder.Append("*TypedPtr = Val;");
+				break;
+			case AccessMethod.MemberFunction:
+				borrower.StringBuilder.Append("*TypedPtr = Instance->");
+				borrower.StringBuilder.Append(descriptor.AccessInformation.MemberFunctionForPropertyAccess);
+				borrower.StringBuilder.AppendLine("();");
+				break;
+			default:
+				throw new InvalidOperationException($"Unknown access method: ${descriptor.AccessInformation.AccessMethod}");
+		} 
+	
+		borrower.StringBuilder.AppendLine("}"); // End of getter
+	}
+
+	private static AccessMode GetAccessModeKey(UhtProperty uhtProperty, AccessMode defaultMode)
+	{
+		bool? found = uhtProperty.MetaData.Dictionary?.ContainsKey(readOnlyKey);
+		if (found is true)
+		{
+			return AccessMode.ReadOnly;
+		}
+
+		found = uhtProperty.MetaData.Dictionary?.ContainsKey(readWriteKey);
+		if (found is true)
+		{
+			return AccessMode.ReadWrite;
+		}
+
+		return defaultMode;
+	}
+
+	private static AccessInformation GetAccessInformation(UhtProperty uhtProperty)
+	{
+		string? accessMethod = null;
+		bool? found = uhtProperty.MetaData.Dictionary?.TryGetValue(accessSpecifierKey, out accessMethod);
+		if (found == true)
+		{
+			AccessMethod method = accessMethod switch
+			{
+				"Public" => AccessMethod.Public,
+				"" or "Reflection" => AccessMethod.UnrealReflection,
+				_ => AccessMethod.MemberFunction
+			};
+			
+			return new() { AccessMethod = method, MemberFunctionForPropertyAccess = accessMethod };
+		}
+
+		return new() { AccessMethod = AccessMethod.Public, MemberFunctionForPropertyAccess = "" };
 	}
 
 	private static void GenerateCodeForClass(IUhtExportFactory factory, UhtClass @class)
