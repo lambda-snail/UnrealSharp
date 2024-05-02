@@ -24,15 +24,6 @@ public struct Transform
 
 public abstract partial class Actor
 {
-    private unsafe get_transformdelegate get_transform;
-    private unsafe set_transformdelegate set_transform;
-    
-    public unsafe void BindDelegates(get_transformdelegate get_transform_in, set_transformdelegate set_transform_in)
-    {
-        this.get_transform = get_transform_in;
-        this.set_transform = set_transform_in;
-    }
-
     public Actor() {}
     
     public ActorHandle ActorHandle { get; set; }
@@ -41,7 +32,6 @@ public abstract partial class Actor
 
     public abstract void Tick(float deltaTime);
 
-    
     
     public Vector Translation
     {

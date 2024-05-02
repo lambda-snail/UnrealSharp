@@ -10,8 +10,6 @@ using System.Text.Unicode;
 namespace LambdaSnail.UnrealSharp;
 
 using ActorHandle = int;
-using unsafe get_transformdelegate = delegate*<int, Transform>;
-using unsafe set_transformdelegate = delegate*<int, Transform, void>;
 
 public static class Constants
 {
@@ -91,12 +89,6 @@ public static partial class ActorManager
     public static void TickActor(ActorHandle handle, float deltaTime)
     {
         Actors[handle].Tick(deltaTime);
-    }
-
-    [UnmanagedCallersOnly]
-    public static unsafe void BindDelegates(ActorHandle handle, get_transformdelegate get_transform, set_transformdelegate set_transform)
-    {
-        Actors[handle].BindDelegates(get_transform, set_transform);
     }
     
     [UnmanagedCallersOnly]

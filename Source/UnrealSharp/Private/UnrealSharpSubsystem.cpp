@@ -36,19 +36,6 @@ LambdaSnail::UnrealSharp::ActorHandle UUnrealSharpSubsystem::RegisterActorForTic
 
 	RegisteredActors.Emplace(Handle, Actor); // TODO: Error handling if actor is already registered?
 	
-	ActorFunctions.BindDelegates(Handle, Lambda::ToFunctionPointer([this](ActorHandle ActorHandle)
-	    {
-	        UE_LOGFMT(LogTemp, Warning, "GetTransform for handle {Handle}", ActorHandle);
-	        SimpleTransform const Transform{this->RegisteredActors[ActorHandle]->GetActorLocation()};
-	        return Transform;
-	    }),
-Lambda::ToFunctionPointer([this](ActorHandle ActorHandle, SimpleTransform Transform)
-	    {
-			UE_LOGFMT(LogTemp, Warning, "SetTransform for handle {Handle}", ActorHandle);
-	        this->RegisteredActors[ActorHandle]->SetActorLocation(Transform.Location);
-	    }
-	));
-
 	return Handle;
 }
 
