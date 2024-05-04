@@ -3,8 +3,7 @@
 #define LOCTEXT_NAMESPACE "FUnrealSharpModule"
 
 #include "UnrealSharp.h"
-
-#include "Host.h"
+#include "Logging.h"
 
 void FUnrealSharpModule::StartupModule()
 {
@@ -22,3 +21,5 @@ void FUnrealSharpModule::ShutdownModule()
 #undef LOCTEXT_NAMESPACE
 	
 IMPLEMENT_MODULE(FUnrealSharpModule, UnrealSharp)
+
+DEFINE_LOG_CATEGORY(UnrealSharpLog);

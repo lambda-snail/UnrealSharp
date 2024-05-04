@@ -12,7 +12,7 @@
 #include "Dotnet/CoreclrDelegates.h"
 #include "Dotnet/HostFxr.h"
 #include "Dotnet/Nethost.h"
-#include "Logging/StructuredLog.h"
+#include "Logging.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -202,7 +202,7 @@ namespace LambdaSnail::UnrealSharp
 		int32_t rc = InitForConfig_Fptr(*ConfigPath, nullptr, &cxt);
 		if (rc != 0 || cxt == nullptr)
 		{
-			std::cerr << "Init failed: " << std::hex << std::showbase << rc << std::endl;
+			UE_LOGFMT(UnrealSharpLog, Error, "Init dotnet core failed: {ReturnCode}", rc);
 			Close_Fptr(cxt);
 			return nullptr;
 		}
