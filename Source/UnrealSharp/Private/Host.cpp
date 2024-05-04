@@ -51,7 +51,6 @@ namespace LambdaSnail::UnrealSharp
 	HostfxrInitializeForDotnetCommandLine_Fn InitForCmdLine_Fptr;
 	HostFxrInitializeForRuntimeConfig_Fn InitForConfig_Fptr;
 	HostFxrGetRuntimeDelegate_Fn GetDelegate_Fptr;
-	HostFxrRunApp_Fn RunApp_Fptr;
 	HostFxrClose_Fn Close_Fptr;
 
 	// Forward declarations
@@ -187,7 +186,6 @@ namespace LambdaSnail::UnrealSharp
 		InitForConfig_Fptr = GetExport<HostFxrInitializeForRuntimeConfig_Fn>(
 			lib, "hostfxr_initialize_for_runtime_config");
 		GetDelegate_Fptr = GetExport<HostFxrGetRuntimeDelegate_Fn>(lib, "hostfxr_get_runtime_delegate");
-		RunApp_Fptr = GetExport<HostFxrRunApp_Fn>(lib, "hostfxr_run_app");
 		Close_Fptr = GetExport<HostFxrClose_Fn>(lib, "hostfxr_close");
 
 		return (InitForConfig_Fptr && GetDelegate_Fptr && Close_Fptr);
