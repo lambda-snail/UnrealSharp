@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Text;
 using EpicGames.UHT.Tables;
 using EpicGames.UHT.Types;
 using EpicGames.UHT.Utils;
+using LambdaSnail.UnrealSharp.UHT.Extensions;
 
 public enum AccessMode
 {
@@ -31,6 +33,21 @@ public struct PropertyDescriptor
 	public UhtProperty Property { get; set; }
 	public AccessMode AccessMode { get; set; }
 	public AccessInformation AccessInformation { get; set; }
+
+	public string GetNameOfGetter()
+	{
+		return "Get" + Property.GetDisplayNameText();
+	}
+	
+	public string GetNameOfSetter()
+	{
+		return "Set" + Property.GetDisplayNameText();
+	}
+
+	public void EmitPropertyTypeString(StringBuilder builder)
+	{
+		Property.AppendText(builder, UhtPropertyTextType.ExportMember);
+	}
 }
 
 [UnrealHeaderTool]
@@ -65,6 +82,8 @@ public static class Exporter
 		// Process parsed code via factory.Session here.
 		factory.Session.LogInfo("TestExporter executed!");
 
+		DotnetClassGenerator dotnetGenerator = new(factory);
+		
 		try
 		{
 			foreach (var package in factory.Session.Packages)
@@ -112,6 +131,12 @@ public static class Exporter
 								string fullPath = Path.Combine(@class.Package.Module.OutputDirectory, @class.GetDisplayNameText() + ".dotnetintegration.g.h");
 								factory.CommitOutput(fullPath, borrower.StringBuilder.ToString());
 								factory.Session.LogInfo($"Exported file {fullPath}");
+
+								if (@class is UhtClass unrealClass)
+								{
+									borrower.StringBuilder.Clear();
+									dotnetGenerator.EmitClass(unrealClass, properties, borrower.StringBuilder);
+								}
 							}
 						}
 					}
@@ -131,10 +156,10 @@ public static class Exporter
 		UhtProperty property = descriptor.Property;
 
 		// Getter - binding signature
-		EmitMemberAccessFunction(isSetter: false, borrower, @class, property);
+		EmitMemberAccessFunction(descriptor.GetNameOfGetter(), borrower, @class, property);
 		
 		borrower.StringBuilder.Append("auto* TypedPtr = static_cast<");
-		property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+		descriptor.EmitPropertyTypeString(borrower.StringBuilder);
 		borrower.StringBuilder.AppendLine("*>(Parameter);");
 		
 		switch (descriptor.AccessInformation.AccessMethod)
@@ -176,7 +201,7 @@ public static class Exporter
 		}
 		
 		// Setter - binding signature
-		EmitMemberAccessFunction(isSetter: true, borrower, @class, property);
+		EmitMemberAccessFunction(descriptor.GetNameOfSetter(), borrower, @class, property);
 
 		switch (descriptor.AccessInformation.AccessMethod)
 		{
@@ -185,7 +210,7 @@ public static class Exporter
 				borrower.StringBuilder.Append("Instance->");
 				borrower.StringBuilder.Append(property.GetDisplayNameText());
 				borrower.StringBuilder.Append(" = *static_cast<");
-				property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+				descriptor.EmitPropertyTypeString(borrower.StringBuilder);
 				borrower.StringBuilder.AppendLine("*>(Parameter);");
 				break;
 			case AccessMethod.UnrealReflection:
@@ -196,17 +221,17 @@ public static class Exporter
 				borrower.StringBuilder.Append(property.GetDisplayNameText());
 				borrower.StringBuilder.AppendLine("\");");
 				
-				// Property->SetValue_InContainer(Instance, static_cast<PropertyType*>(Parameter));
-				borrower.StringBuilder.Append("Property->SetValue_InContainer(Instance, static_cast<");
-				property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+				// Property->SetValue_InContainer(static_cast<void*>(Instance), static_cast<PropertyType*>(Parameter));
+				borrower.StringBuilder.Append("Property->SetValue_InContainer(static_cast<void*>(Instance), static_cast<");
+				descriptor.EmitPropertyTypeString(borrower.StringBuilder);
 				borrower.StringBuilder.AppendLine("*>(Parameter));");
 				break;
 			case AccessMethod.MemberFunction:
 				// Instance->FunctionName(*static_cast<Type*>(Parameter));
-				borrower.StringBuilder.Append("Instance->");
+				borrower.StringBuilder.Append("Instance->Set");
 				borrower.StringBuilder.Append(descriptor.AccessInformation.MemberFunctionForPropertyAccess);
 				borrower.StringBuilder.Append("(*static_cast<");
-				property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+				descriptor.EmitPropertyTypeString(borrower.StringBuilder);
 				borrower.StringBuilder.AppendLine("*>(Parameter));");
 				break;
 			default:
@@ -217,14 +242,13 @@ public static class Exporter
 		borrower.StringBuilder.AppendLine();
 	}
 	
-	private static void EmitMemberAccessFunction(bool isSetter, BorrowStringBuilder borrower, UhtType @class, UhtProperty property)
+	private static void EmitMemberAccessFunction(string accessFunctionName, BorrowStringBuilder borrower, UhtType @class, UhtProperty property)
 	{
 		borrower.StringBuilder.Append("extern \"C\" __declspec(dllexport) inline void ");
-		borrower.StringBuilder.Append(isSetter ? "Set_" : "Get_");
-		borrower.StringBuilder.Append(property.GetDisplayNameText());
+		borrower.StringBuilder.Append(accessFunctionName);
 		borrower.StringBuilder.Append("(");
 		borrower.StringBuilder.Append(@class.GetDisplayNameText());
-		borrower.StringBuilder.AppendLine(" const* Instance, void* Parameter) {");
+		borrower.StringBuilder.AppendLine(" const* Instance, void* Parameter) {"); // TODO: Find nice way to parametrize the constness
 	}
 
 	private static AccessMode? GetAccessModeKey(UhtProperty uhtProperty)
