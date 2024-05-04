@@ -65,5 +65,5 @@ namespace LambdaSnail::UnrealSharp
 		tick_single_actor_fn TickSingleActor;
 	};
 	
-	ManagedActorFunctions InitializeDotnetCore(FString const& root_path);
+	ManagedActorFunctions InitializeDotnetCore(FString const& RootPath);
 }

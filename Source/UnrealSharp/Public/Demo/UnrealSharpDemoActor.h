@@ -25,10 +25,11 @@ public:
 	// TODO: Look over the metadata api for property binding generation - use a DSL?
 	double GetDoubleProp() const { return {}; };
 	void SetDoubleProp(double Prop) {};
-protected:
+
 	// TODO: Why is this handled as public without the DotnetAccess?
 	UPROPERTY(meta = (DotnetReadWrite = "true")) 
 	uint64 Int64Prop; 
+protected:
 
 	virtual void BeginPlay() override;
 

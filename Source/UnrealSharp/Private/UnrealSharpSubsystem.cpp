@@ -14,7 +14,7 @@ void UUnrealSharpSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	using namespace LambdaSnail::UnrealSharp;
 
-	FString const Path ("C:\\Projects\\Unreal\\DotnetIntegration\\Plugins\\UnrealSharp\\Resources\\");
+	FString const Path = FPaths::Combine (FPaths::ProjectDir(), "Plugins", "UnrealSharp", "Resources");
 	ActorFunctions = InitializeDotnetCore(Path);
 }
 

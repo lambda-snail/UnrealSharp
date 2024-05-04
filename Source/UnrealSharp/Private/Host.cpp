@@ -59,7 +59,7 @@ namespace LambdaSnail::UnrealSharp
 	bool LoadHostfxr(FString const& assembly_path);
 	load_assembly_and_get_function_pointer_fn GetDotnetLoadAssembly(FString const& config_path);
 
-	ManagedActorFunctions InitializeDotnetCore(FString const& root_path)
+	ManagedActorFunctions InitializeDotnetCore(FString const& RootPath)
 	{
 		// Load HostFxr and get exported hosting functions
 		if (!LoadHostfxr(FString()))
@@ -69,17 +69,17 @@ namespace LambdaSnail::UnrealSharp
 		}
 		
 		// Initialize and start the dotnet core runtime
-		FString const config_path = root_path + FString("DotNetLib.runtimeconfig.json");
+		FString const ConfigPath = FPaths::Combine(RootPath, "DotNetLib.runtimeconfig.json");
 
 		load_assembly_and_get_function_pointer_fn load_assembly_and_get_function_pointer = nullptr;
-		load_assembly_and_get_function_pointer = GetDotnetLoadAssembly(config_path);
+		load_assembly_and_get_function_pointer = GetDotnetLoadAssembly(ConfigPath);
 		assert(load_assembly_and_get_function_pointer != nullptr && "Failure: get_dotnet_load_assembly()");
 
 		// ###############################
 		// Initialize Actor Manager 
 		// ###############################
 
-		FString const DotnetlibPath = root_path + STR("UnrealSharpCore.dll");
+		FString const DotnetlibPath = FPaths::Combine(RootPath, "UnrealSharpCore.dll");
 		FString const dotnet_type = STR("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore");
 		FString const dotnet_type_method("InitActorManager");
 		// Function pointer to managed delegate
