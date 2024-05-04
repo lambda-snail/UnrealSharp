@@ -131,11 +131,7 @@ public static class Exporter
 		UhtProperty property = descriptor.Property;
 
 		// Getter - binding signature
-		borrower.StringBuilder.Append("extern \"C\" __declspec(dllexport) inline void Get_");
-		borrower.StringBuilder.Append(property.GetDisplayNameText());
-		borrower.StringBuilder.Append("(");
-		borrower.StringBuilder.Append(@class.GetDisplayNameText());
-		borrower.StringBuilder.AppendLine(" const* Instance, void* Parameter) {");
+		EmitMemberAccessFunction(isSetter: false, borrower, @class, property);
 		
 		borrower.StringBuilder.Append("auto* TypedPtr = static_cast<");
 		property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
@@ -160,7 +156,7 @@ public static class Exporter
 				property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
 				borrower.StringBuilder.Append(" Val;");
 				borrower.StringBuilder.AppendLine("Property->GetValue_InContainer(Instance, &Val);");
-				borrower.StringBuilder.Append("*TypedPtr = Val;");
+				borrower.StringBuilder.AppendLine("*TypedPtr = Val;");
 				break;
 			case AccessMethod.MemberFunction:
 				borrower.StringBuilder.Append("*TypedPtr = Instance->Get"); // Get + Function Name
@@ -169,9 +165,66 @@ public static class Exporter
 				break;
 			default:
 				throw new InvalidOperationException($"Unknown access method: ${descriptor.AccessInformation.AccessMethod}");
-		} 
-	
+		}
+
 		borrower.StringBuilder.AppendLine("}"); // End of getter
+		borrower.StringBuilder.AppendLine();
+		
+		if (descriptor.AccessMode != AccessMode.ReadWrite)
+		{
+			return;
+		}
+		
+		// Setter - binding signature
+		EmitMemberAccessFunction(isSetter: true, borrower, @class, property);
+
+		switch (descriptor.AccessInformation.AccessMethod)
+		{
+			case AccessMethod.Public:
+				// Instance->Property = *static_cast<Type*>(Parameter);
+				borrower.StringBuilder.Append("Instance->");
+				borrower.StringBuilder.Append(property.GetDisplayNameText());
+				borrower.StringBuilder.Append(" = *static_cast<");
+				property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+				borrower.StringBuilder.AppendLine("*>(Parameter);");
+				break;
+			case AccessMethod.UnrealReflection:
+				// static FProperty* Property = ClassName::StaticClass()->FindPropertyByName("<PropertyName>");
+				borrower.StringBuilder.Append("static FProperty* Property = ");
+				borrower.StringBuilder.Append(@class.GetDisplayNameText());
+				borrower.StringBuilder.Append("::StaticClass()->FindPropertyByName(\"");
+				borrower.StringBuilder.Append(property.GetDisplayNameText());
+				borrower.StringBuilder.AppendLine("\");");
+				
+				// Property->SetValue_InContainer(Instance, static_cast<PropertyType*>(Parameter));
+				borrower.StringBuilder.Append("Property->SetValue_InContainer(Instance, static_cast<");
+				property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+				borrower.StringBuilder.AppendLine("*>(Parameter));");
+				break;
+			case AccessMethod.MemberFunction:
+				// Instance->FunctionName(*static_cast<Type*>(Parameter));
+				borrower.StringBuilder.Append("Instance->");
+				borrower.StringBuilder.Append(descriptor.AccessInformation.MemberFunctionForPropertyAccess);
+				borrower.StringBuilder.Append("(*static_cast<");
+				property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember);
+				borrower.StringBuilder.AppendLine("*>(Parameter));");
+				break;
+			default:
+				throw new InvalidOperationException($"Unknown access method: ${descriptor.AccessInformation.AccessMethod}");
+		}
+	
+		borrower.StringBuilder.AppendLine("}"); // End of setter
+		borrower.StringBuilder.AppendLine();
+	}
+	
+	private static void EmitMemberAccessFunction(bool isSetter, BorrowStringBuilder borrower, UhtType @class, UhtProperty property)
+	{
+		borrower.StringBuilder.Append("extern \"C\" __declspec(dllexport) inline void ");
+		borrower.StringBuilder.Append(isSetter ? "Set_" : "Get_");
+		borrower.StringBuilder.Append(property.GetDisplayNameText());
+		borrower.StringBuilder.Append("(");
+		borrower.StringBuilder.Append(@class.GetDisplayNameText());
+		borrower.StringBuilder.AppendLine(" const* Instance, void* Parameter) {");
 	}
 
 	private static AccessMode? GetAccessModeKey(UhtProperty uhtProperty)

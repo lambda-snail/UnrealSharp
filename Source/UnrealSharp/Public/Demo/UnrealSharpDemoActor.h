@@ -13,7 +13,7 @@ class UUnrealSharpSubsystem;
  * Demonstrates how to register an actor with the UnrealSharpSubsystem to obtain an actor handle, and how to
  * invoke c# logic on each tick.
  */
-UCLASS()
+UCLASS(meta = (DotnetClassName = "DemoActor"))
 class UNREALSHARP_API AUnrealSharpDemoActor : public AActor
 {
 	GENERATED_BODY()
