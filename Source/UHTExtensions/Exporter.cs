@@ -65,52 +65,17 @@ public static class Exporter
 		// Process parsed code via factory.Session here.
 		factory.Session.LogInfo("TestExporter executed!");
 
-		//factory.Session.SortedHeaderFiles[0].HeaderFile.Children
-		
 		try
 		{
 			foreach (var package in factory.Session.Packages)
 			{
-				// if (!package.SourceName.Contains("DotnetIntegration"))
-				// {
-				// 	continue;
-				// }
-
-				// foreach (var metadataUsage in MetadataUsageFinder.FindAllMetadataUsages(package))
-				// {
-				// 	factory.Session.LogInfo($"{metadataUsage.Key}: {metadataUsage.Value} - {metadataUsage.Tag}");
-				// }
-
-				// Header files
-				// foreach (var type in package.Children)
-				// {
-				// 	factory.Session.LogInfo(type.SourceName);
-				// }
-
-				// Classes
-				// foreach (var hf in package.Children)
-				// {
-				// 	foreach (var type in hf.Children)
-				// 	{
-				// 		factory.Session.LogInfo(type.SourceName);
-				// 	}
-				// }
-
 				foreach (var header in package.Children)
 				{
 					foreach (var @class in header.Children)
 					{
-						//factory.Session.LogInfo($"# {@class.SourceName}");
-						
 						List<PropertyDescriptor> properties = new();
 						foreach (var type in @class.Children)
 						{
-							//factory.Session.LogInfo($"## {type.SourceName}");
-							//foreach (var metadata in MetadataUsageFinder.FindAllMetadataUsages (type))
-							// {
-							// 	factory.Session.LogInfo($"#### {metadata.Value}");
-							// }
-							
 							if (type is UhtProperty uhtProperty)
 							{
 								AccessMode? accessMode = GetAccessModeKey(uhtProperty);
@@ -127,10 +92,6 @@ public static class Exporter
 									AccessInformation = accessInformation,
 									Property = uhtProperty
 								});
-
-								//borrower.StringBuilder.AppendPropertyText(property, UhtPropertyTextType.ExportMember);
-								// property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember); // Output property type in c++
-								//borrower.StringBuilder.AppendLine(property.Setter);
 							}
 
 							// TODO: Generate extern "C" bindings here instead, as well as C# code
@@ -140,39 +101,11 @@ public static class Exporter
        
 								borrower.StringBuilder.AppendLine("#pragma once");
 								borrower.StringBuilder.AppendLine("namespace LambdaSnail::UnrealSharp {");
-								
-								// borrower.StringBuilder.Append("class ");
-								// borrower.StringBuilder.Append(@class.GetDisplayNameText());
-								// borrower.StringBuilder.AppendLine("_DotnetBindings {");
-								// borrower.StringBuilder.AppendLine("public:");
 
 								foreach (PropertyDescriptor descriptor in properties)
 								{
 									GenerateBindingsForProperty(descriptor, borrower, @class);
 								}
-								
-								// extern "C" __declspec(dllexport) inline void GetRotation(AActor const* Actor, void* Rotator)
-								// {
-								// 	FVector* Vec = static_cast<FVector*>(Rotator);
-								// 	*Vec = Actor->GetActorRotation().Euler();
-								// }
-								
-								// borrower.StringBuilder.AppendLine("* ClassInstanceParameter) {");
-								// borrower.StringBuilder.AppendLine(
-								// 	"UUnrealSharpSubsystem* UnrealSharpSubsystem = ClassInstanceParameter->GetWorld()->GetGameInstance()->GetSubsystem<UUnrealSharpSubsystem>();"
-								// );
-								//
-								// foreach (var property in properties)
-								// {
-								// 	// RegisterNumericProperty(LambdaSnail::UnrealSharp::ActorHandle Handle, UNumericProperty* Property)
-								// 	borrower.StringBuilder.Append("UnrealSharpSubsystem->RegisterNumericProperty<");
-								// 	property.AppendText(borrower.StringBuilder, UhtPropertyTextType.ExportMember); // Output property type in c++
-								// 	borrower.StringBuilder.Append(">(Handle,\"");
-								// 	
-        //                             borrower.StringBuilder.Append(property.SourceName);
-								// 	
-        //                             borrower.StringBuilder.AppendLine("\");");
-								// }
 								
 								borrower.StringBuilder.AppendLine("}");  // Namespace
 								
@@ -180,12 +113,6 @@ public static class Exporter
 								factory.CommitOutput(fullPath, borrower.StringBuilder.ToString());
 								factory.Session.LogInfo($"Exported file {fullPath}");
 							}
-							
-
-							// foreach (var (key, value) in type.MetaData.Dictionary!)
-							// {
-							// 	factory.Session.LogInfo($"#### {key} - {value}");
-							// }
 						}
 					}
 				}
