@@ -89,7 +89,8 @@ namespace LambdaSnail::UnrealSharp
 			nullptr,
 			nullptr,
 			reinterpret_cast<void**>(&EntryPoint));
-		assert(rc == 0 && entry_point != nullptr && "Failure: load_assembly_and_get_function_pointer()");
+
+		ensureAlwaysMsgf(rc == 0 and EntryPoint != nullptr, TEXT("Failure: load_assembly_and_get_function_pointer()"));
 		
 		EntryPoint(nullptr, 0);
 
@@ -111,7 +112,8 @@ namespace LambdaSnail::UnrealSharp
 		typedef int (CORECLR_DELEGATE_CALLTYPE *RegisterUnrealLogger_Fn)(void (*ue_log)(TCHAR const*));
 		RegisterUnrealLogger_Fn RegisterUnrealManagedLogger { nullptr };
 		rc = GetFunctionPointerUnmanagedCallersOnly(FString("BindLogger"), &RegisterUnrealManagedLogger, FString("LambdaSnail.UnrealSharp.UELog, UnrealSharpCore"));
-		checkf(rc == 0 && RegisterUnrealManagedLogger != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("register_unreal_logger"));
+
+		ensureAlwaysMsgf(rc == 0 && RegisterUnrealManagedLogger != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("register_unreal_logger"));
 
 		RegisterUnrealManagedLogger([](TCHAR const* Message)
 		{
@@ -125,14 +127,14 @@ namespace LambdaSnail::UnrealSharp
 		ManagedActorFunctions ActorFunctions {};
 		
 		rc = GetFunctionPointerUnmanagedCallersOnly(FString("RegisterActor"), &ActorFunctions.RegisterManagedActor);
-		checkf(rc == 0 && ActorFunctions.RegisterManagedActor != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("RegisterManagedActor"));
+		ensureAlwaysMsgf(rc == 0 && ActorFunctions.RegisterManagedActor != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("RegisterManagedActor"));
 		
 		// Tick Functions
 		rc = GetFunctionPointerUnmanagedCallersOnly(FString("TickActors"), &ActorFunctions.TickActors);
-		checkf(rc == 0 && ActorFunctions.TickActors != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("TickActors"));
+		ensureAlwaysMsgf(rc == 0 && ActorFunctions.TickActors != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("TickActors"));
 
 		rc = GetFunctionPointerUnmanagedCallersOnly(FString("TickSingleActor"), &ActorFunctions.TickSingleActor);
-		checkf(rc == 0 && ActorFunctions.TickSingleActor != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("TickSingleActor"));
+		ensureAlwaysMsgf(rc == 0 && ActorFunctions.TickSingleActor != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("TickSingleActor"));
 		
 		return ActorFunctions;
 	}
@@ -210,8 +212,8 @@ namespace LambdaSnail::UnrealSharp
 			cxt,
 			hdt_load_assembly_and_get_function_pointer,
 			&load_assembly_and_get_function_pointer);
-		if (rc != 0 || load_assembly_and_get_function_pointer == nullptr)
-			std::cerr << "Get delegate failed: " << std::hex << std::showbase << rc << std::endl;
+
+		ensureAlwaysMsgf(rc != 0 || load_assembly_and_get_function_pointer == nullptr, TEXT("Get delegate failed: {ReturnCode}"), rc);
 
 		Close_Fptr(cxt);
 		return static_cast<LoadAssemblyAndGetFunctionPointer_Fn>(load_assembly_and_get_function_pointer);
