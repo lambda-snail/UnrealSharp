@@ -9,14 +9,8 @@
 
 #if defined(_WIN32)
     #define HOSTFXR_CALLTYPE __cdecl
-    #ifdef _WCHAR_T_DEFINED
-        typedef wchar_t char_t;
-    #else
-        typedef unsigned short char_t;
-    #endif
 #else
     #define HOSTFXR_CALLTYPE
-    typedef char char_t;
 #endif
 
 enum hostfxr_delegate_type
@@ -30,22 +24,22 @@ enum hostfxr_delegate_type
     hdt_get_function_pointer,
 };
 
-typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_main_fn)(const int argc, const char_t **argv);
+typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_main_fn)(const int argc, const TCHAR **argv);
 typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_main_startupinfo_fn)(
     const int argc,
-    const char_t **argv,
-    const char_t *host_path,
-    const char_t *dotnet_root,
-    const char_t *app_path);
+    const TCHAR **argv,
+    const TCHAR *host_path,
+    const TCHAR *dotnet_root,
+    const TCHAR *app_path);
 typedef int32_t(HOSTFXR_CALLTYPE* hostfxr_main_bundle_startupinfo_fn)(
     const int argc,
-    const char_t** argv,
-    const char_t* host_path,
-    const char_t* dotnet_root,
-    const char_t* app_path,
+    const TCHAR** argv,
+    const TCHAR* host_path,
+    const TCHAR* dotnet_root,
+    const TCHAR* app_path,
     int64_t bundle_header_offset);
 
-typedef void(HOSTFXR_CALLTYPE *hostfxr_error_writer_fn)(const char_t *message);
+typedef void(HOSTFXR_CALLTYPE *hostfxr_error_writer_fn)(const TCHAR *message);
 
 //
 // Sets a callback which is to be used to write errors to.
@@ -76,8 +70,8 @@ typedef void* hostfxr_handle;
 struct hostfxr_initialize_parameters
 {
     size_t size;
-    const char_t *host_path;
-    const char_t *dotnet_root;
+    const TCHAR *host_path;
+    const TCHAR *dotnet_root;
 };
 
 //
@@ -105,9 +99,9 @@ struct hostfxr_initialize_parameters
 //
 // This function does not load the runtime.
 //
-typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_initialize_for_dotnet_command_line_fn)(
+typedef int32_t(HOSTFXR_CALLTYPE *HostfxrInitializeForDotnetCommandLine_Fn)(
     int argc,
-    const char_t **argv,
+    const TCHAR **argv,
     const struct hostfxr_initialize_parameters *parameters,
     /*out*/ hostfxr_handle *host_context_handle);
 
@@ -141,8 +135,8 @@ typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_initialize_for_dotnet_command_line_fn)
 // initializations. In the case of Success_DifferentRuntimeProperties, it is left to the consumer to verify that
 // the difference in properties is acceptable.
 //
-typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_initialize_for_runtime_config_fn)(
-    const char_t *runtime_config_path,
+typedef int32_t(HOSTFXR_CALLTYPE *HostFxrInitializeForRuntimeConfig_Fn)(
+    const TCHAR *runtime_config_path,
     const struct hostfxr_initialize_parameters *parameters,
     /*out*/ hostfxr_handle *host_context_handle);
 
@@ -171,8 +165,8 @@ typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_initialize_for_runtime_config_fn)(
 //
 typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_property_value_fn)(
     const hostfxr_handle host_context_handle,
-    const char_t *name,
-    /*out*/ const char_t **value);
+    const TCHAR *name,
+    /*out*/ const TCHAR **value);
 
 //
 // Sets the value of a runtime property for an initialized host context
@@ -195,8 +189,8 @@ typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_property_value_fn)(
 //
 typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_set_runtime_property_value_fn)(
     const hostfxr_handle host_context_handle,
-    const char_t *name,
-    const char_t *value);
+    const TCHAR *name,
+    const TCHAR *value);
 
 //
 // Gets all the runtime properties for an initialized host context
@@ -228,8 +222,8 @@ typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_set_runtime_property_value_fn)(
 typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_properties_fn)(
     const hostfxr_handle host_context_handle,
     /*inout*/ size_t * count,
-    /*out*/ const char_t **keys,
-    /*out*/ const char_t **values);
+    /*out*/ const TCHAR **keys,
+    /*out*/ const TCHAR **values);
 
 //
 // Load CoreCLR and run the application for an initialized host context
@@ -245,7 +239,7 @@ typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_properties_fn)(
 //
 // This function will not return until the managed application exits.
 //
-typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_run_app_fn)(const hostfxr_handle host_context_handle);
+typedef int32_t(HOSTFXR_CALLTYPE *HostFxrRunApp_Fn)(const hostfxr_handle host_context_handle);
 
 //
 // Gets a typed delegate from the currently loaded CoreCLR or from a newly created one.
@@ -268,7 +262,7 @@ typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_run_app_fn)(const hostfxr_handle host_
 //     hdt_load_assembly_and_get_function_pointer
 //     hdt_get_function_pointer
 //
-typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_delegate_fn)(
+typedef int32_t(HOSTFXR_CALLTYPE *HostFxrGetRuntimeDelegate_Fn)(
     const hostfxr_handle host_context_handle,
     enum hostfxr_delegate_type type,
     /*out*/ void **delegate);
@@ -283,6 +277,6 @@ typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_get_runtime_delegate_fn)(
 // Return value:
 //     The error code result.
 //
-typedef int32_t(HOSTFXR_CALLTYPE *hostfxr_close_fn)(const hostfxr_handle host_context_handle);
+typedef int32_t(HOSTFXR_CALLTYPE *HostFxrClose_Fn)(const hostfxr_handle host_context_handle);
 
 #endif //__HOSTFXR_H__

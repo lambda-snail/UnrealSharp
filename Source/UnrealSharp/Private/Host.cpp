@@ -7,12 +7,11 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cassert>
-#include <functional>
 #include <iostream>
 
-#include "Dotnet/coreclr_delegates.h"
-#include "Dotnet/hostfxr.h"
-#include "Dotnet/nethost.h"
+#include "Dotnet/CoreclrDelegates.h"
+#include "Dotnet/HostFxr.h"
+#include "Dotnet/Nethost.h"
 #include "Logging/StructuredLog.h"
 
 #ifdef _WIN32
@@ -49,15 +48,15 @@
 namespace LambdaSnail::UnrealSharp
 {
 	// Globals to hold hostfxr exports
-	hostfxr_initialize_for_dotnet_command_line_fn init_for_cmd_line_fptr;
-	hostfxr_initialize_for_runtime_config_fn init_for_config_fptr;
-	hostfxr_get_runtime_delegate_fn get_delegate_fptr;
-	hostfxr_run_app_fn run_app_fptr;
-	hostfxr_close_fn close_fptr;
+	HostfxrInitializeForDotnetCommandLine_Fn InitForCmdLine_Fptr;
+	HostFxrInitializeForRuntimeConfig_Fn InitForConfig_Fptr;
+	HostFxrGetRuntimeDelegate_Fn GetDelegate_Fptr;
+	HostFxrRunApp_Fn RunApp_Fptr;
+	HostFxrClose_Fn Close_Fptr;
 
 	// Forward declarations
 	bool LoadHostfxr(FString const& assembly_path);
-	load_assembly_and_get_function_pointer_fn GetDotnetLoadAssembly(FString const& config_path);
+	LoadAssemblyAndGetFunctionPointer_Fn GetDotnetLoadAssembly(FString const& config_path);
 
 	ManagedActorFunctions InitializeDotnetCore(FString const& RootPath)
 	{
@@ -71,36 +70,36 @@ namespace LambdaSnail::UnrealSharp
 		// Initialize and start the dotnet core runtime
 		FString const ConfigPath = FPaths::Combine(RootPath, "DotNetLib.runtimeconfig.json");
 
-		load_assembly_and_get_function_pointer_fn load_assembly_and_get_function_pointer = nullptr;
-		load_assembly_and_get_function_pointer = GetDotnetLoadAssembly(ConfigPath);
-		assert(load_assembly_and_get_function_pointer != nullptr && "Failure: get_dotnet_load_assembly()");
+		LoadAssemblyAndGetFunctionPointer_Fn LoadAssemblyAndGetFunctionPointer = nullptr;
+		LoadAssemblyAndGetFunctionPointer = GetDotnetLoadAssembly(ConfigPath);
+		assert(LoadAssemblyAndGetFunctionPointer != nullptr && "Failure: get_dotnet_load_assembly()");
 
 		// ###############################
 		// Initialize Actor Manager 
 		// ###############################
 
 		FString const DotnetlibPath = FPaths::Combine(RootPath, "UnrealSharpCore.dll");
-		FString const dotnet_type = STR("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore");
-		FString const dotnet_type_method("InitActorManager");
+		FString const DotnetType = STR("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore");
+		FString const DotnetTypeMethod("InitActorManager");
 		// Function pointer to managed delegate
-		component_entry_point_fn entry_point = nullptr;
-		int32_t rc = load_assembly_and_get_function_pointer(
+		ComponentEntryPoint_Fn EntryPoint = nullptr;
+		int32_t rc = LoadAssemblyAndGetFunctionPointer(
 			*DotnetlibPath, 
-			*dotnet_type,
-			*dotnet_type_method,
+			*DotnetType,
+			*DotnetTypeMethod,
 			nullptr,
 			nullptr,
-			reinterpret_cast<void**>(&entry_point));
+			reinterpret_cast<void**>(&EntryPoint));
 		assert(rc == 0 && entry_point != nullptr && "Failure: load_assembly_and_get_function_pointer()");
 		
-		entry_point(nullptr, 0);
+		EntryPoint(nullptr, 0);
 
 		// ###############################
 		// Register UE LOG
 		// ###############################
 		auto GetFunctionPointerUnmanagedCallersOnly = [&](FString const& MethodName, auto** OutFunction, FString const& AssemblyQualifiedType = FString("LambdaSnail.UnrealSharp.ActorManager, UnrealSharpCore"))-> int32
 		{
-			return load_assembly_and_get_function_pointer(
+			return LoadAssemblyAndGetFunctionPointer(
 				*DotnetlibPath,
 				*FString(AssemblyQualifiedType),
 				*MethodName,
@@ -110,8 +109,8 @@ namespace LambdaSnail::UnrealSharp
 		};
 		
 
-		typedef int (CORECLR_DELEGATE_CALLTYPE *register_unreal_logger_fn)(void (*ue_log)(TCHAR const*));
-		register_unreal_logger_fn RegisterUnrealManagedLogger { nullptr };
+		typedef int (CORECLR_DELEGATE_CALLTYPE *RegisterUnrealLogger_Fn)(void (*ue_log)(TCHAR const*));
+		RegisterUnrealLogger_Fn RegisterUnrealManagedLogger { nullptr };
 		rc = GetFunctionPointerUnmanagedCallersOnly(FString("BindLogger"), &RegisterUnrealManagedLogger, FString("LambdaSnail.UnrealSharp.UELog, UnrealSharpCore"));
 		checkf(rc == 0 && RegisterUnrealManagedLogger != nullptr, TEXT("Unable to load managed function: {FunctionName}"), TEXT("register_unreal_logger"));
 
@@ -183,40 +182,40 @@ namespace LambdaSnail::UnrealSharp
 
 		// Load hostfxr and get desired exports
 		void* lib = LoadLibrary(buffer);
-		init_for_cmd_line_fptr = GetExport<hostfxr_initialize_for_dotnet_command_line_fn>(
+		InitForCmdLine_Fptr = GetExport<HostfxrInitializeForDotnetCommandLine_Fn>(
 			lib, "hostfxr_initialize_for_dotnet_command_line");
-		init_for_config_fptr = GetExport<hostfxr_initialize_for_runtime_config_fn>(
+		InitForConfig_Fptr = GetExport<HostFxrInitializeForRuntimeConfig_Fn>(
 			lib, "hostfxr_initialize_for_runtime_config");
-		get_delegate_fptr = GetExport<hostfxr_get_runtime_delegate_fn>(lib, "hostfxr_get_runtime_delegate");
-		run_app_fptr = GetExport<hostfxr_run_app_fn>(lib, "hostfxr_run_app");
-		close_fptr = GetExport<hostfxr_close_fn>(lib, "hostfxr_close");
+		GetDelegate_Fptr = GetExport<HostFxrGetRuntimeDelegate_Fn>(lib, "hostfxr_get_runtime_delegate");
+		RunApp_Fptr = GetExport<HostFxrRunApp_Fn>(lib, "hostfxr_run_app");
+		Close_Fptr = GetExport<HostFxrClose_Fn>(lib, "hostfxr_close");
 
-		return (init_for_config_fptr && get_delegate_fptr && close_fptr);
+		return (InitForConfig_Fptr && GetDelegate_Fptr && Close_Fptr);
 	}
 
 	// Load and initialize .NET Core and get desired function pointer for scenario
-	load_assembly_and_get_function_pointer_fn GetDotnetLoadAssembly(FString const& ConfigPath)
+	LoadAssemblyAndGetFunctionPointer_Fn GetDotnetLoadAssembly(FString const& ConfigPath)
 	{
 		// Load .NET Core
 		void* load_assembly_and_get_function_pointer = nullptr;
 		hostfxr_handle cxt = nullptr;
-		int32_t rc = init_for_config_fptr(*ConfigPath, nullptr, &cxt);
+		int32_t rc = InitForConfig_Fptr(*ConfigPath, nullptr, &cxt);
 		if (rc != 0 || cxt == nullptr)
 		{
 			std::cerr << "Init failed: " << std::hex << std::showbase << rc << std::endl;
-			close_fptr(cxt);
+			Close_Fptr(cxt);
 			return nullptr;
 		}
 
 		// Get the load assembly function pointer
-		rc = get_delegate_fptr(
+		rc = GetDelegate_Fptr(
 			cxt,
 			hdt_load_assembly_and_get_function_pointer,
 			&load_assembly_and_get_function_pointer);
 		if (rc != 0 || load_assembly_and_get_function_pointer == nullptr)
 			std::cerr << "Get delegate failed: " << std::hex << std::showbase << rc << std::endl;
 
-		close_fptr(cxt);
-		return static_cast<load_assembly_and_get_function_pointer_fn>(load_assembly_and_get_function_pointer);
+		Close_Fptr(cxt);
+		return static_cast<LoadAssemblyAndGetFunctionPointer_Fn>(load_assembly_and_get_function_pointer);
 	}
 }

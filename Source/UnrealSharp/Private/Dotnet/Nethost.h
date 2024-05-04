@@ -58,8 +58,8 @@ extern "C" {
 //
 struct get_hostfxr_parameters {
     size_t size;
-    const char_t *assembly_path;
-    const char_t *dotnet_root;
+    const TCHAR *assembly_path;
+    const TCHAR *dotnet_root;
 };
 
 //
@@ -88,7 +88,7 @@ struct get_hostfxr_parameters {
 //   to call this function multiple times, pass a large buffer (e.g. PATH_MAX).
 //
 NETHOST_API int NETHOST_CALLTYPE get_hostfxr_path(
-    char_t * buffer,
+    TCHAR * buffer,
     size_t * buffer_size,
     const struct get_hostfxr_parameters *parameters);
 
