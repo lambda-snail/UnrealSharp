@@ -156,7 +156,7 @@ public static class Exporter
 		UhtProperty property = descriptor.Property;
 
 		// Getter - binding signature
-		EmitMemberAccessFunction(descriptor.GetNameOfGetter(), borrower, @class, property);
+		EmitMemberAccessFunction(descriptor.GetNameOfGetter(), isConstInstance:true, borrower, @class, property);
 		
 		borrower.StringBuilder.Append("auto* TypedPtr = static_cast<");
 		descriptor.EmitPropertyTypeString(borrower.StringBuilder);
@@ -201,7 +201,7 @@ public static class Exporter
 		}
 		
 		// Setter - binding signature
-		EmitMemberAccessFunction(descriptor.GetNameOfSetter(), borrower, @class, property);
+		EmitMemberAccessFunction(descriptor.GetNameOfSetter(), isConstInstance:false, borrower, @class, property);
 
 		switch (descriptor.AccessInformation.AccessMethod)
 		{
@@ -242,13 +242,17 @@ public static class Exporter
 		borrower.StringBuilder.AppendLine();
 	}
 	
-	private static void EmitMemberAccessFunction(string accessFunctionName, BorrowStringBuilder borrower, UhtType @class, UhtProperty property)
+	private static void EmitMemberAccessFunction(string accessFunctionName, bool isConstInstance, BorrowStringBuilder borrower, UhtType @class, UhtProperty property)
 	{
 		borrower.StringBuilder.Append("extern \"C\" __declspec(dllexport) inline void ");
 		borrower.StringBuilder.Append(accessFunctionName);
 		borrower.StringBuilder.Append("(");
 		borrower.StringBuilder.Append(@class.GetDisplayNameText());
-		borrower.StringBuilder.AppendLine(" const* Instance, void* Parameter) {"); // TODO: Find nice way to parametrize the constness
+		if (isConstInstance)
+		{
+			borrower.StringBuilder.Append(" const");
+		}
+		borrower.StringBuilder.AppendLine("* Instance, void* Parameter) {");
 	}
 
 	private static AccessMode? GetAccessModeKey(UhtProperty uhtProperty)
