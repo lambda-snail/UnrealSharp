@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <EngineDir Condition="'$(EngineDir)' == ''">C:\Games\Epic Games\UE_5.3\Engine</EngineDir>
+        <OutputDir Condition="'$(OutputDir)' == ''">..\..\..\..\Binaries\DotNET\UnrealBuildTool\Plugins\$(AssemblyName)\</OutputDir>
         <GeneratorName>UnrealSharp</GeneratorName>
         <RootNamespace>LambdaSnail.UnrealSharp.UHT.Extensions</RootNamespace>
     </PropertyGroup>
@@ -18,7 +19,7 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
         <Configurations>Debug;Release;Development</Configurations>
-        <OutputPath>..\..\..\..\Binaries\DotNET\UnrealBuildTool\Plugins\$(AssemblyName)\</OutputPath>
+        <OutputPath>$(OutputDir)</OutputPath>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <DebugType>pdbonly</DebugType>
         <Nullable>enable</Nullable>
@@ -38,8 +39,30 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="VYaml" Version="0.26.0" GeneratePathProperty="true" />
+        <PackageReference Include="VYaml.Annotations" Version="0.26.0" GeneratePathProperty="true" />
     </ItemGroup>
+
+    
+<!--    <Target Name="CopyNugetsToOutput" BeforeTargets="Build">-->
+
+<!--        <Message Text="YML = $(PkgVYaml)\lib\net6.0\VYaml.dll" />-->
+<!--        <Message Text="YML.Annotations = $(PkgVYaml_Annotations)\lib\net6.0\VYaml.Annotations.dll" />-->
+<!--        -->
+<!--        <Copy SourceFiles="$(PkgVYaml)\lib\net6.0\VYaml.dll"-->
+<!--              DestinationFolder="$(OutputDir)" />-->
+
+<!--        <Copy SourceFiles="$(PkgVYaml_Annotations)\lib\net6.0\VYaml.Annotations.dll"-->
+<!--              DestinationFolder="$(OutputDir)" />-->
+<!--    </Target>-->
+    
     <ItemGroup>
+        <Reference Include="VYaml">
+            <HintPath>$(PkgVYaml)\lib\net6.0\VYaml.dll</HintPath>
+        </Reference>
+        <Reference Include="VYaml.Annotations">
+            <HintPath>$(PkgVYaml_Annotations)\lib\net6.0\VYaml.Annotations.dll</HintPath>
+        </Reference>
         <Reference Include="EpicGames.Build">
             <HintPath>$(EngineDir)\Binaries\DotNET\UnrealBuildTool\EpicGames.Build.dll</HintPath>
         </Reference>

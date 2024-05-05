@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using EpicGames.UHT.Types;
 using EpicGames.UHT.Utils;
@@ -25,16 +26,23 @@ public class DotnetClassGenerator
 			className = name;
 		}
 
-		// Generate C# bindings:
-		// - Generate LibraryImport declarations
-		//	- Do we put these in own static class or in the same class?
-		// - Check if we need to generate a type
-		//	- Do we need to maintain a type mapping somewhere?
-		// - Do we accept strings for now?
+		_factory.Session.LogInfo("Working Directory: {WD}", System.IO.Directory.GetCurrentDirectory());
+		
+		// _factory.CreateTask(Factory =>
+		// {
+			_factory.Session.LogInfo("Project directory: {Dir}", _factory.Session.ProjectDirectory);
+			
+			// Generate C# bindings:
+			// - Generate LibraryImport declarations
+			//	- Do we put these in own static class or in the same class?
+			// - Check if we need to generate a type
+			//	- Do we need to maintain a type mapping somewhere?
+			// - Do we accept strings for now?
 
-		string bindingsClassName = className + "_Bindings"; 
-		EmitStaticClassForBindings(properties, builder, bindingsClassName);
-		CommitGeneratedCode(@class, builder, bindingsClassName);
+			string bindingsClassName = className + "_Bindings"; 
+			EmitStaticClassForBindings(properties, builder, bindingsClassName);
+			CommitGeneratedCode(@class, builder, bindingsClassName);
+		// });
 	}
 
 	private void CommitGeneratedCode(UhtClass @class, StringBuilder builder, string bindingsClassName)

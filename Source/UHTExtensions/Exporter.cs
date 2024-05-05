@@ -81,7 +81,7 @@ public static class Exporter
 	{
 		// Process parsed code via factory.Session here.
 		factory.Session.LogInfo("TestExporter executed!");
-
+		
 		DotnetClassGenerator dotnetGenerator = new(factory);
 		
 		try
@@ -104,7 +104,7 @@ public static class Exporter
 								}
 								
 								AccessInformation accessInformation = GetAccessInformation(uhtProperty);
-
+		
 								properties.Add(new()
 								{
 									AccessMode = accessMode.Value,
@@ -112,7 +112,7 @@ public static class Exporter
 									Property = uhtProperty
 								});
 							}
-
+		
 							// TODO: Generate extern "C" bindings here instead, as well as C# code
 							if (properties.Count > 0)
 							{
@@ -120,7 +120,7 @@ public static class Exporter
        
 								borrower.StringBuilder.AppendLine("#pragma once");
 								borrower.StringBuilder.AppendLine("namespace LambdaSnail::UnrealSharp {");
-
+		
 								foreach (PropertyDescriptor descriptor in properties)
 								{
 									GenerateBindingsForProperty(descriptor, borrower, @class);
@@ -131,7 +131,7 @@ public static class Exporter
 								string fullPath = Path.Combine(@class.Package.Module.OutputDirectory, @class.GetDisplayNameText() + ".dotnetintegration.g.h");
 								factory.CommitOutput(fullPath, borrower.StringBuilder.ToString());
 								factory.Session.LogInfo($"Exported file {fullPath}");
-
+		
 								if (@class is UhtClass unrealClass)
 								{
 									borrower.StringBuilder.Clear();
