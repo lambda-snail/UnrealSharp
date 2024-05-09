@@ -1,6 +1,6 @@
 # TL;DR
 
-UnrealSharp attempts to add a `dotnet core` integration to some parts of Unreal Engine. It does this by creating what the `dotnet` documentation calls a "native host" in the context of a subsystem, and exposes functionality by providing function pointers to `dotnet`. You can read more about this in my other repository [dotnet-host-example](https://github.com/lambda-snail/dotnet-host-example) where I play around with an example from Microsoft, and document some cases that were not really covered in the official channels (as far as I could tell).
+UnrealSharp attempts to add a `dotnet core` integration to some parts of Unreal Engine. It does this by creating what the `dotnet` documentation calls a "native host" in the context of a subsystem, and exposes functionality by generating P/Invoke bindings for `dotnet` using a header tool plugin. You can read more about this in my other repository [dotnet-host-example](https://github.com/lambda-snail/dotnet-host-example) where I play around with an example from Microsoft, and document some cases that were not really covered in the official channels (as far as I could tell).
 
 The plugin is currently in an early stage and is probably not very useful at the moment.
 
