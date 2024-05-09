@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using EpicGames.UHT.Tables;
 using EpicGames.UHT.Types;
 using EpicGames.UHT.Utils;
@@ -84,6 +86,9 @@ public static class Exporter
 		
 		try
 		{
+			ConcurrentBag<UnrealSharpOutput> outputs = new();
+			List<Task?> exportTasks = new(); 
+			
 			foreach (var package in factory.Session.Packages)
 			{
 				foreach (var header in package.Children)
@@ -134,12 +139,9 @@ public static class Exporter
 								{
 									borrower.StringBuilder.Clear();
 
-									factory.CreateTask((IUhtExportFactory factory) =>
-									{
-										DotnetClassGenerator dotnetGenerator = new(factory);
-										using BorrowStringBuilder builder = new(StringBuilderCache.Big);
-										dotnetGenerator.EmitClass(unrealClass, properties, builder.StringBuilder).Wait();
-									});
+									DotnetClassGenerator dotnetGenerator = new(factory);
+									using BorrowStringBuilder builder = new(StringBuilderCache.Big);
+									dotnetGenerator.EmitClass(unrealClass, properties, builder.StringBuilder).Wait();
 								}
 							}
 						}

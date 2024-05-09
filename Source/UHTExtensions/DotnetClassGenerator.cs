@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -18,8 +19,6 @@ public class DotnetClassGenerator
 	private static readonly string DotnetClassNameSpecifier = "DotnetClassName";
 	private static readonly UhtMetaDataKey ClassNameKey = new UhtMetaDataKey(DotnetClassNameSpecifier);
 
-	private UnrealSharpConfiguration CodeGenerationSettings { get; set; } = default!;
-	
 	public DotnetClassGenerator(IUhtExportFactory factory)
 	{
 		_factory = factory;
@@ -33,7 +32,7 @@ public class DotnetClassGenerator
 			_factory.Session.LogError("Unable to find configuration file in {ProjectDirectory}", _factory.Session.ProjectDirectory);
 			return;
 		}
-
+		
 		string className = @class.GetDisplayNameText();
 		if (@class.MetaData.Dictionary?.TryGetValue(ClassNameKey, out string? name) is true)
 		{
@@ -48,19 +47,29 @@ public class DotnetClassGenerator
 		// - Do we accept strings for now?
 		
 		string bindingsClassName = className + "_Bindings"; 
-		EmitStaticClassForBindings(properties, builder, bindingsClassName);
-		CommitGeneratedCode(@class, builder, bindingsClassName);
+		EmitStaticClassForBindings(properties, builder, bindingsClassName, config);
+		CommitGeneratedCode(@class, builder, bindingsClassName, config);
 	}
 
-	private void CommitGeneratedCode(UhtClass @class, StringBuilder builder, string bindingsClassName)
+	private void CommitGeneratedCode(UhtClass @class, StringBuilder builder, string bindingsClassName, UnrealSharpConfiguration config)
 	{
-		string fullPath = Path.Combine(@class.Package.Module.OutputDirectory, bindingsClassName + ".dotnetintegration.cs");
+		//string fullPath = Path.Combine(@class.Package.Module.OutputDirectory, bindingsClassName + ".dotnetintegration.cs");
+		string fullPath = Path.Combine(config.DotnetProjectDirectory, bindingsClassName + ".dotnetintegration.cs");
 		_factory.CommitOutput(fullPath, builder.ToString());
-		_factory.Session.LogInfo($"Exported file {fullPath}");
 	}
 
-	private static void EmitStaticClassForBindings(List<PropertyDescriptor> properties, StringBuilder builder, string className)
+	private static void EmitStaticClassForBindings(List<PropertyDescriptor> properties, StringBuilder builder, string className, UnrealSharpConfiguration config)
 	{
+		builder.Append("namespace ");
+		builder.Append(config.NamespaceSettings.DefaultNamespace);
+		if (config.NamespaceSettings.NamespacePerClass)
+		{
+			builder.Append(".");
+			builder.Append(className);
+		}
+		
+		builder.AppendLine(";"); // Close namespace declaration
+		
 		builder.Append("public static partial class ");
 		builder.Append(className);
 		builder.Append('{');
