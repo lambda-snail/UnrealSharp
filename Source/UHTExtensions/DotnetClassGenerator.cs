@@ -48,7 +48,20 @@ public class DotnetClassGenerator
 		
 		string bindingsClassName = className + "_Bindings"; 
 		EmitStaticClassForBindings(properties, builder, bindingsClassName, config);
+		EmitClassWithProperties(properties, builder, className, config);
 		CommitGeneratedCode(@class, builder, bindingsClassName, config);
+	}
+
+	private void EmitClassWithProperties(List<PropertyDescriptor> properties, StringBuilder builder, string className, UnrealSharpConfiguration config)
+	{
+		EmitFileScopeNamespace(builder, className, config);
+		
+		builder.Append("public partial class ");
+		builder.Append(className);
+		builder.Append('{');
+		
+		
+		builder.Append('}'); // End of class
 	}
 
 	private void CommitGeneratedCode(UhtClass @class, StringBuilder builder, string bindingsClassName, UnrealSharpConfiguration config)
@@ -60,16 +73,8 @@ public class DotnetClassGenerator
 
 	private static void EmitStaticClassForBindings(List<PropertyDescriptor> properties, StringBuilder builder, string className, UnrealSharpConfiguration config)
 	{
-		builder.Append("namespace ");
-		builder.Append(config.NamespaceSettings.DefaultNamespace);
-		if (config.NamespaceSettings.NamespacePerClass)
-		{
-			builder.Append(".");
-			builder.Append(className);
-		}
-		
-		builder.AppendLine(";"); // Close namespace declaration
-		
+		EmitFileScopeNamespace(builder, className, config);
+
 		builder.Append("public static partial class ");
 		builder.Append(className);
 		builder.Append('{');
@@ -84,6 +89,19 @@ public class DotnetClassGenerator
 		}
 		
 		builder.Append('}'); // End static class
+	}
+
+	private static void EmitFileScopeNamespace(StringBuilder builder, string className, UnrealSharpConfiguration config)
+	{
+		builder.Append("namespace ");
+		builder.Append(config.NamespaceSettings.DefaultNamespace);
+		if (config.NamespaceSettings.NamespacePerClass)
+		{
+			builder.Append(".");
+			builder.Append(className);
+		}
+		
+		builder.AppendLine(";"); // Close namespace declaration
 	}
 
 	/// <summary>
