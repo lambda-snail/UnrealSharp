@@ -1,9 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using EpicGames.UHT.Types;
 using EpicGames.UHT.Utils;
+using LambdaSnail.UnrealSharp.UHT.Extensions.Settings;
+using UnrealBuildBase;
+using VYaml.Serialization;
 
 namespace LambdaSnail.UnrealSharp.UHT.Extensions;
 
@@ -13,36 +18,38 @@ public class DotnetClassGenerator
 	private static readonly string DotnetClassNameSpecifier = "DotnetClassName";
 	private static readonly UhtMetaDataKey ClassNameKey = new UhtMetaDataKey(DotnetClassNameSpecifier);
 
+	private UnrealSharpConfiguration CodeGenerationSettings { get; set; } = default!;
+	
 	public DotnetClassGenerator(IUhtExportFactory factory)
 	{
 		_factory = factory;
 	}
 	
-	public void EmitClass(UhtClass @class, List<PropertyDescriptor> properties, StringBuilder builder)
+	public async Task EmitClass(UhtClass @class, List<PropertyDescriptor> properties, StringBuilder builder)
 	{
+		var config = await ConfigurationManager.GetConfigurationIfExists(_factory.Session.ProjectDirectory!);
+		if (config is null)
+		{
+			_factory.Session.LogError("Unable to find configuration file in {ProjectDirectory}", _factory.Session.ProjectDirectory);
+			return;
+		}
+
 		string className = @class.GetDisplayNameText();
 		if (@class.MetaData.Dictionary?.TryGetValue(ClassNameKey, out string? name) is true)
 		{
 			className = name;
 		}
-
-		_factory.Session.LogInfo("Working Directory: {WD}", System.IO.Directory.GetCurrentDirectory());
 		
-		// _factory.CreateTask(Factory =>
-		// {
-			_factory.Session.LogInfo("Project directory: {Dir}", _factory.Session.ProjectDirectory);
-			
-			// Generate C# bindings:
-			// - Generate LibraryImport declarations
-			//	- Do we put these in own static class or in the same class?
-			// - Check if we need to generate a type
-			//	- Do we need to maintain a type mapping somewhere?
-			// - Do we accept strings for now?
-
-			string bindingsClassName = className + "_Bindings"; 
-			EmitStaticClassForBindings(properties, builder, bindingsClassName);
-			CommitGeneratedCode(@class, builder, bindingsClassName);
-		// });
+		// Generate C# bindings:
+		// - Generate LibraryImport declarations
+		//	- Do we put these in own static class or in the same class?
+		// - Check if we need to generate a type
+		//	- Do we need to maintain a type mapping somewhere?
+		// - Do we accept strings for now?
+		
+		string bindingsClassName = className + "_Bindings"; 
+		EmitStaticClassForBindings(properties, builder, bindingsClassName);
+		CommitGeneratedCode(@class, builder, bindingsClassName);
 	}
 
 	private void CommitGeneratedCode(UhtClass @class, StringBuilder builder, string bindingsClassName)

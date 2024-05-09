@@ -82,8 +82,6 @@ public static class Exporter
 		// Process parsed code via factory.Session here.
 		factory.Session.LogInfo("TestExporter executed!");
 		
-		DotnetClassGenerator dotnetGenerator = new(factory);
-		
 		try
 		{
 			foreach (var package in factory.Session.Packages)
@@ -135,7 +133,13 @@ public static class Exporter
 								if (@class is UhtClass unrealClass)
 								{
 									borrower.StringBuilder.Clear();
-									dotnetGenerator.EmitClass(unrealClass, properties, borrower.StringBuilder);
+
+									factory.CreateTask((IUhtExportFactory factory) =>
+									{
+										DotnetClassGenerator dotnetGenerator = new(factory);
+										using BorrowStringBuilder builder = new(StringBuilderCache.Big);
+										dotnetGenerator.EmitClass(unrealClass, properties, builder.StringBuilder).Wait();
+									});
 								}
 							}
 						}

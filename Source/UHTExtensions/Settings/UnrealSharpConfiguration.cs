@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using VYaml.Annotations;
 
 namespace LambdaSnail.UnrealSharp.UHT.Extensions.Settings;
@@ -18,7 +17,7 @@ public partial class NamespaceSettings
 	/// setting. 
 	/// </summary>
 	public bool NamespacePerClass { get; init; }
-	public ReadOnlyCollection<string> ClassNamespaceOverrides { get; init; } = new(new List<string>());
+	public List<string> ClassNamespaceOverrides { get; init; } = new List<string>();
 }
 
 
@@ -26,4 +25,9 @@ public partial class NamespaceSettings
 public partial class UnrealSharpConfiguration
 {
 	public NamespaceSettings NamespaceSettings { get; init; } = default!;
+
+	/// <summary>
+	/// The path to the directory where your .csproj file resides in your c# project.
+	/// </summary>
+	public string DotnetProjectDirectory { get; init; } = default!;
 }
