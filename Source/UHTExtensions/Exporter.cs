@@ -78,12 +78,9 @@ public static class Exporter
 	static readonly UhtMetaDataKey readWriteKey = new UhtMetaDataKey(DotnetReadWriteSpecifier);
 	static readonly UhtMetaDataKey accessSpecifierKey = new UhtMetaDataKey(DotnetAccessSpecifier);
 	
-	[UhtExporter(Name = "TestExporter", ModuleName = "UHTExtensions", Options = UhtExporterOptions.Default)]
+	[UhtExporter(Name = "UnrealSharpExporter", ModuleName = "UHTExtensions", Options = UhtExporterOptions.Default)]
 	public static void Generate(IUhtExportFactory factory)
 	{
-		// Process parsed code via factory.Session here.
-		factory.Session.LogInfo("TestExporter executed!");
-		
 		try
 		{
 			ConcurrentBag<UnrealSharpOutput> outputs = new();
