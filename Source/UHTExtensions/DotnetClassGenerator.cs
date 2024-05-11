@@ -65,6 +65,12 @@ public class DotnetClassGenerator
 
 		foreach (var property in properties)
 		{
+			_factory.Session.LogInfo("Generating property {Property}", property.Property.GetDisplayNameText());
+			if (false == TypeMap.TryGetTypeDescriptor(property.Property, out DotnetTypeDescriptor? typeDescriptor))
+			{
+				continue;
+			}
+			
 			builder.Append("public ");
 			property.EmitPropertyTypeString(builder);
 			builder.Append(" ");
@@ -76,7 +82,10 @@ public class DotnetClassGenerator
 			builder.Append('.');
 			builder.Append(property.GetNameOfGetter());
 			builder.Append("(ActorPtr, out ");
-			property.EmitPropertyTypeString(builder); // TODO: Needs type mapping 
+			
+			builder.Append(typeDescriptor.DotnetTypeName);
+			//property.EmitPropertyTypeString(builder);  
+			
 			builder.AppendLine(" val); return val;");
 			
 			// Property Setter

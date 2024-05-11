@@ -82,13 +82,14 @@ public static class Exporter
 	[UhtExporter(Name = "UnrealSharpExporter", ModuleName = "UHTExtensions", Options = UhtExporterOptions.Default)]
 	public static void Generate(IUhtExportFactory factory)
 	{
-		TypeMapper typeMap = new();
 		var config = ConfigurationManager.GetConfigurationIfExists(factory.Session.ProjectDirectory!).Result;
 		if (config is null)
 		{
 			factory.Session.LogError("Unable to find configuration file in {ProjectDirectory}", factory.Session.ProjectDirectory);
 			return;
 		}
+		
+		TypeMapper typeMap = new(config);
 		
 		try
 		{
