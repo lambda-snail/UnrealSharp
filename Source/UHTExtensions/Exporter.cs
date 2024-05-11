@@ -10,6 +10,7 @@ using EpicGames.UHT.Tables;
 using EpicGames.UHT.Types;
 using EpicGames.UHT.Utils;
 using LambdaSnail.UnrealSharp.UHT.Extensions;
+using LambdaSnail.UnrealSharp.UHT.Extensions.Settings;
 
 public enum AccessMode
 {
@@ -81,6 +82,14 @@ public static class Exporter
 	[UhtExporter(Name = "UnrealSharpExporter", ModuleName = "UHTExtensions", Options = UhtExporterOptions.Default)]
 	public static void Generate(IUhtExportFactory factory)
 	{
+		TypeMapper typeMap = new();
+		var config = ConfigurationManager.GetConfigurationIfExists(factory.Session.ProjectDirectory!).Result;
+		if (config is null)
+		{
+			factory.Session.LogError("Unable to find configuration file in {ProjectDirectory}", factory.Session.ProjectDirectory);
+			return;
+		}
+		
 		try
 		{
 			foreach (var package in factory.Session.Packages)
@@ -133,9 +142,9 @@ public static class Exporter
 								{
 									borrower.StringBuilder.Clear();
 
-									DotnetClassGenerator dotnetGenerator = new(factory);
+									DotnetClassGenerator dotnetGenerator = new(factory, config, typeMap);
 									using BorrowStringBuilder builder = new(StringBuilderCache.Big);
-									dotnetGenerator.EmitClass(unrealClass, properties, builder.StringBuilder).Wait();
+									dotnetGenerator.EmitClass(unrealClass, properties, builder.StringBuilder);
 								}
 							}
 						}

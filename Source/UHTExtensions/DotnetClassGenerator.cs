@@ -11,22 +11,26 @@ namespace LambdaSnail.UnrealSharp.UHT.Extensions;
 public class DotnetClassGenerator
 {
 	private readonly IUhtExportFactory _factory;
+	private readonly UnrealSharpConfiguration Config;
+	private readonly TypeMapper TypeMap;
 	private static readonly string DotnetClassNameSpecifier = "DotnetClassName";
 	private static readonly UhtMetaDataKey ClassNameKey = new UhtMetaDataKey(DotnetClassNameSpecifier);
 
-	public DotnetClassGenerator(IUhtExportFactory factory)
+	public DotnetClassGenerator(IUhtExportFactory factory, UnrealSharpConfiguration config, TypeMapper typeMap)
 	{
 		_factory = factory;
+		Config = config;
+		TypeMap = typeMap;
 	}
 	
-	public async Task EmitClass(UhtClass @class, List<PropertyDescriptor> properties, StringBuilder builder)
+	public void EmitClass(UhtClass @class, List<PropertyDescriptor> properties, StringBuilder builder)
 	{
-		var config = await ConfigurationManager.GetConfigurationIfExists(_factory.Session.ProjectDirectory!);
-		if (config is null)
-		{
-			_factory.Session.LogError("Unable to find configuration file in {ProjectDirectory}", _factory.Session.ProjectDirectory);
-			return;
-		}
+		// var config = await ConfigurationManager.GetConfigurationIfExists(_factory.Session.ProjectDirectory!);
+		// if (config is null)
+		// {
+		// 	_factory.Session.LogError("Unable to find configuration file in {ProjectDirectory}", _factory.Session.ProjectDirectory);
+		// 	return;
+		// }
 		
 		string className = @class.GetDisplayNameText();
 		if (@class.MetaData.Dictionary?.TryGetValue(ClassNameKey, out string? name) is true)
@@ -42,12 +46,12 @@ public class DotnetClassGenerator
 		// - Do we accept strings for now?
 		
 		string bindingsClassName = className + "_Bindings"; 
-		EmitStaticClassForBindings(properties, builder, bindingsClassName, config);
-		CommitGeneratedCode(@class, builder, bindingsClassName, config);
+		EmitStaticClassForBindings(properties, builder, bindingsClassName, Config);
+		CommitGeneratedCode(@class, builder, bindingsClassName, Config);
 		builder.Clear();
 		
-		EmitClassWithProperties(properties, builder, className, bindingsClassName, config);
-		CommitGeneratedCode(@class, builder, className, config);
+		EmitClassWithProperties(properties, builder, className, bindingsClassName, Config);
+		CommitGeneratedCode(@class, builder, className, Config);
 	}
 
 	private void EmitClassWithProperties(List<PropertyDescriptor> properties, StringBuilder builder, string className, string bindingsClassName, UnrealSharpConfiguration config)
