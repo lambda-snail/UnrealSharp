@@ -16,7 +16,7 @@ My dream is to have a plugin where the user (developer) can work with his/her ow
 
 The UHT plugin that generates the bindings is currently using [vyaml](https://github.com/hadashiA/VYaml) to read yaml comfiguration files. However, currently nuget packages do not work with UHT plugins (as far as I can tell).
 
-I have made a [pull request](https://github.com/hadashiA/VYaml) to the Unreal repo that should fix the issue, but if it is not accepted I will have to think of something else. The fix required is only one line though, so it's not too hard to do, but requiring users of a plugin to modify the build tool doesn't feel user friendly to me :)
+I have made a [pull request](https://github.com/EpicGames/UnrealEngine/pull/11863) to the Unreal repo that should fix the issue, but if it is not accepted I will have to think of something else. The fix required is only one line though, so it's not too hard to do, but requiring users of a plugin to modify the build tool doesn't feel user friendly to me :)
 
 ## Ticking
 
