@@ -20,7 +20,7 @@ I have made a (https://github.com/hadashiA/VYaml)[pull request] to the Unreal re
 
 ## Ticking
 
-Currently it is possible to register an actor with the subsystem, and have it tick each frame using code written in `csharp`. The `Actor` class in `dotnet` has properties for individually setting and getting the translation, rotation and scale of the C++ `Actor`, as well as getting and setting the `Transform`. The example provided uses `dotnet` to make an `Actor` float up and down:
+Currently, it is possible to register an actor with the subsystem, and have it tick each frame using code written in `csharp`. The `Actor` class in `dotnet` has properties for individually setting and getting the translation, rotation and scale of the C++ `Actor`, as well as getting and setting the `Transform`. The example provided uses `dotnet` to make an `Actor` float up and down:
 
 ```csharp
 public class TestActor : Actor
@@ -127,6 +127,30 @@ auto* TypedPtr = static_cast<double*>(Parameter);
 ```
 
 At the current stage, these haven't been tested yet, so may work like a charm or not at all. I will update this README as I progress.
+
+## Configuration
+
+To control the source generation, the plugin expects a yaml cofiguration file called `unrealsharp.config.yml` to be placed in the project directory. 
+
+This is currently a WIP (as many other things in here) and currently it looks something like this:
+
+```yaml
+namespace-settings:
+  default-namespace: 'LambdaSnail.UnrealSharp.Samples'
+  namespace-perclass: true
+  class-namespaceoverrides: # Not in use
+    - 'override-1'
+    - 'override-2'
+dotnet-projectdirectory: 'C:\Users\blomb\Desktop\unrealsharp\'
+type-mappings:
+  map-overrides:
+    FVector:
+      dotnet-typename: Vector
+      dotnet-namespace: LambdaSnail.UnrealSharp
+      is-primitive: false
+```
+
+However, it is currently under heavy development and will be subject to change.
 
 # In Progress
 
