@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EpicGames.UHT.Types;
 using EpicGames.UHT.Utils;
 using LambdaSnail.UnrealSharp.UHT.Extensions.Settings;
-using UnrealBuildBase;
-using VYaml.Serialization;
 
 namespace LambdaSnail.UnrealSharp.UHT.Extensions;
 
@@ -48,26 +43,70 @@ public class DotnetClassGenerator
 		
 		string bindingsClassName = className + "_Bindings"; 
 		EmitStaticClassForBindings(properties, builder, bindingsClassName, config);
-		EmitClassWithProperties(properties, builder, className, config);
 		CommitGeneratedCode(@class, builder, bindingsClassName, config);
+		builder.Clear();
+		
+		EmitClassWithProperties(properties, builder, className, bindingsClassName, config);
+		CommitGeneratedCode(@class, builder, className, config);
 	}
 
-	private void EmitClassWithProperties(List<PropertyDescriptor> properties, StringBuilder builder, string className, UnrealSharpConfiguration config)
+	private void EmitClassWithProperties(List<PropertyDescriptor> properties, StringBuilder builder, string className, string bindingsClassName, UnrealSharpConfiguration config)
 	{
 		EmitFileScopeNamespace(builder, className, config);
 		
 		builder.Append("public partial class ");
 		builder.Append(className);
 		builder.Append('{');
+		builder.AppendLine();
+
+		foreach (var property in properties)
+		{
+			builder.Append("public ");
+			property.EmitPropertyTypeString(builder);
+			builder.Append(" ");
+			builder.AppendLine(property.Property.GetDisplayNameText());
+			
+			// Property Getter
+			builder.AppendLine("{ get {");
+			builder.Append(bindingsClassName);
+			builder.Append('.');
+			builder.Append(property.GetNameOfGetter());
+			builder.Append("(ActorPtr, out ");
+			property.EmitPropertyTypeString(builder); // TODO: Needs type mapping 
+			builder.AppendLine(" val); return val;");
+			
+			// Property Setter
+			builder.AppendLine("} set {");
+			builder.Append(bindingsClassName);
+			builder.Append('.');
+			builder.Append(property.GetNameOfSetter());
+			builder.Append("(ActorPtr, ref value);");
+			
+			builder.AppendLine("}");
+			builder.AppendLine("}");
+			builder.AppendLine();
+		}
 		
+	// public Vector Translation
+	// {
+	// 	get
+	// 	{
+	// 		ActorManager.GetTranslation(ActorPtr, out Vector vector);
+	// 		return vector;
+	// 	}
+	// 	set
+	// 	{
+	// 		ActorManager.SetTranslation(ActorPtr, ref value);
+	// 	}
+	// }
 		
 		builder.Append('}'); // End of class
 	}
 
-	private void CommitGeneratedCode(UhtClass @class, StringBuilder builder, string bindingsClassName, UnrealSharpConfiguration config)
+	private void CommitGeneratedCode(UhtClass @class, StringBuilder builder, string className, UnrealSharpConfiguration config)
 	{
 		//string fullPath = Path.Combine(@class.Package.Module.OutputDirectory, bindingsClassName + ".dotnetintegration.cs");
-		string fullPath = Path.Combine(config.DotnetProjectDirectory, bindingsClassName + ".dotnetintegration.cs");
+		string fullPath = Path.Combine(config.DotnetProjectDirectory, className + ".g.cs");
 		_factory.CommitOutput(fullPath, builder.ToString());
 	}
 
