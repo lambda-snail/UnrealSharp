@@ -1,3 +1,16 @@
+# Project Paused
+
+After starting this project i discovered that there is another project with the same name (naming stuff is hard) - https://github.com/UnrealSharp/UnrealSharp and also another project with almost the same name - https://github.com/crazytuzi/UnrealCSharp. Since these projects are already doing what I aimed to do, and also have very similar names, I feel that I will have to rename the project and figure out where it is positioned in relation to the projects that already exist.
+
+I have learned a lot from this project thought:
+
+- Writing plugins for UHT
+- Embedding dotnet in C++
+- Reading the source code of UBT
+- It lead to a PR to the Unreal source code
+
+---
+
 # TL;DR
 
 UnrealSharp attempts to add a `dotnet core` integration to some parts of Unreal Engine. It does this by creating what the `dotnet` documentation calls a "native host" in the context of a subsystem, and exposes functionality by generating P/Invoke bindings for `dotnet` using a header tool plugin. You can read more about this in my other repository [dotnet-host-example](https://github.com/lambda-snail/dotnet-host-example) where I play around with an example from Microsoft, and document some cases that were not really covered in the official channels (as far as I could tell).
