@@ -12,6 +12,12 @@ My dream is to have a plugin where the user (developer) can work with his/her ow
 
 # Current State
 
+## Dependencies
+
+The UHT plugin that generates the bindings is currently using [vyaml](https://github.com/hadashiA/VYaml) to read yaml comfiguration files. However, currently nuget packages do not work with UHT plugins (as far as I can tell).
+
+I have made a (https://github.com/hadashiA/VYaml)[pull request] to the Unreal repo that should fix the issue, but if it is not accepted I will have to think of something else. The fix required is only one line though, so it's not too hard to do, but requiring users of a plugin to modify the build tool doesn't feel user friendly to me :)
+
 ## Ticking
 
 Currently it is possible to register an actor with the subsystem, and have it tick each frame using code written in `csharp`. The `Actor` class in `dotnet` has properties for individually setting and getting the translation, rotation and scale of the C++ `Actor`, as well as getting and setting the `Transform`. The example provided uses `dotnet` to make an `Actor` float up and down:
