@@ -1,6 +1,6 @@
 # Project Paused
 
-After starting this project i discovered that there is another project with the same name (naming stuff is hard) - https://github.com/UnrealSharp/UnrealSharp and also another project with almost the same name - https://github.com/crazytuzi/UnrealCSharp. Since these projects are already doing what I aimed to do, and also have very similar names, I feel that I will have to rename the project and figure out where it is positioned in relation to the projects that already exist.
+After starting this project i discovered that there is another project with the same name (naming stuff is hard) - [UnrealSharp(]https://github.com/UnrealSharp/UnrealSharp) and also another project with almost the same name - [UnrealCSharp](https://github.com/crazytuzi/UnrealCSharp). Since these projects are already doing what I aimed to do, and also have very similar names, I feel that I will have to rename the project and figure out where it is positioned in relation to the projects that already exist.
 
 I have learned a lot from this project thought:
 
