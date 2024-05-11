@@ -83,9 +83,6 @@ public static class Exporter
 	{
 		try
 		{
-			ConcurrentBag<UnrealSharpOutput> outputs = new();
-			List<Task?> exportTasks = new(); 
-			
 			foreach (var package in factory.Session.Packages)
 			{
 				foreach (var header in package.Children)
